@@ -170,12 +170,6 @@
 
 		<Card as="section" aria-labelledby="toasts" class="space-y-4">
 			<Heading level={2} size={3} id="toasts">Toast</Heading>
-			<p class="text-sm text-muted">
-				From any component:
-				<code class="rounded-sm bg-neutral-soft px-1.5 py-0.5 font-mono text-xs text-fg">
-					getToasts().add({'{'} tone: 'success', message: 'Saved' {'}'})
-				</code>
-			</p>
 			<div class="flex flex-wrap gap-3">
 				{#each toastTones as tone (tone)}
 					<Button

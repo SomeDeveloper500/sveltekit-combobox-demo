@@ -38,7 +38,10 @@ describe('Button', () => {
 		render(Button, { children: label, loading: true, onclick });
 		const button = page.getByRole('button');
 		// aria-disabled (not `disabled`) keeps the button focusable
-		await expect.element(button).toBeEnabled();
+		const element = button.element() as HTMLButtonElement;
+		expect(element.disabled).toBe(false);
+		element.focus();
+		expect(document.activeElement).toBe(element);
 		await expect.element(button).toHaveAttribute('aria-disabled', 'true');
 		await expect.element(page.getByText('Loading…')).toBeInTheDocument();
 		await button.click({ force: true });

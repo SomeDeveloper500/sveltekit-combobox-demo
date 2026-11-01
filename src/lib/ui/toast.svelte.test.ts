@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { page } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
+import ToastConsumer from './testing/ToastConsumer.svelte';
 import ToastHarness from './testing/ToastHarness.svelte';
-import { ToastStore, getToasts } from './toast.svelte.js';
+import { ToastStore } from './toast.svelte.js';
 
 function mount() {
 	let store!: ToastStore;
@@ -38,7 +39,7 @@ describe('ToastStore', () => {
 	});
 
 	it('refuses to be read without a provider', () => {
-		expect(() => getToasts()).toThrow(/provideToasts/);
+		expect(() => render(ToastConsumer)).toThrow(/provideToasts/);
 	});
 });
 
@@ -68,15 +69,20 @@ describe('Toaster', () => {
 	it('closes with the dismiss button', async () => {
 		const store = mount();
 		store.add({ message: 'Close me.', duration: 0 });
-		await page.getByRole('button', { name: 'Dismiss' }).click();
+		// Keyboard, not mouse: a pointer left over the toast would pause the next test's timer (hover pauses).
+		const dismiss = page.getByRole('button', { name: 'Dismiss' });
+		await expect.element(dismiss).toBeInTheDocument();
+		(dismiss.element() as HTMLButtonElement).focus();
+		await userEvent.keyboard('{Enter}');
 		await expect.element(page.getByText('Close me.')).not.toBeInTheDocument();
 	});
 
 	it('closes on its own after the duration', async () => {
 		const store = mount();
 		store.add({ message: 'Short lived.', duration: 100 });
-		await expect.element(page.getByText('Short lived.')).toBeInTheDocument();
-		await expect.element(page.getByText('Short lived.')).not.toBeInTheDocument();
+		const toast = page.getByText('Short lived.');
+		await expect.element(toast).toBeInTheDocument();
+		await expect.element(toast).not.toBeInTheDocument();
 	});
 
 	it('keeps a sticky toast (duration 0)', async () => {
