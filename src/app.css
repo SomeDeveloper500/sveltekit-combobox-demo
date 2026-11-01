@@ -1,1 +1,113 @@
 @import 'tailwindcss';
+
+/*
+ * Design tokens. Components use only the semantic utilities generated from the @theme
+ * block (bg-surface, text-fg, border-line, bg-primary, ...), never raw palette classes.
+ * Light/dark is a swap of the CSS variables below, not parallel class lists.
+ * `line` is for decorative dividers; `line-strong` meets 3:1 and is for control borders.
+ */
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+:root {
+	color-scheme: light;
+	--bg: #ffffff;
+	--surface: #f8fafc;
+	--surface-raised: #ffffff;
+	--fg: #0f172a;
+	--fg-muted: #475569;
+	--line: #cbd5e1;
+	--line-strong: #64748b;
+	--primary: #1d4ed8;
+	--primary-hover: #1e40af;
+	--primary-fg: #ffffff;
+	--danger: #b91c1c;
+	--danger-soft: #fee2e2;
+	--success: #15803d;
+	--success-soft: #dcfce7;
+	--warning: #92400e;
+	--warning-soft: #fef3c7;
+	--info: #1d4ed8;
+	--info-soft: #dbeafe;
+	--neutral-soft: #e2e8f0;
+	--focus: #1d4ed8;
+	--elevation-card: 0 1px 2px rgb(15 23 42 / 0.06), 0 1px 3px rgb(15 23 42 / 0.1);
+}
+
+:root[data-theme='dark'] {
+	color-scheme: dark;
+	--bg: #0b1020;
+	--surface: #111833;
+	--surface-raised: #172042;
+	--fg: #e5e9f5;
+	--fg-muted: #a3aed0;
+	--line: #3b4870;
+	--line-strong: #6b7aa6;
+	--primary: #7aa7ff;
+	--primary-hover: #9dbdff;
+	--primary-fg: #0b1020;
+	--danger: #f87171;
+	--danger-soft: #451a1a;
+	--success: #4ade80;
+	--success-soft: #14341f;
+	--warning: #fbbf24;
+	--warning-soft: #3b2a08;
+	--info: #7aa7ff;
+	--info-soft: #172a57;
+	--neutral-soft: #26325a;
+	--focus: #9dbdff;
+	--elevation-card: 0 1px 2px rgb(0 0 0 / 0.4);
+}
+
+@theme inline {
+	--color-bg: var(--bg);
+	--color-surface: var(--surface);
+	--color-raised: var(--surface-raised);
+	--color-fg: var(--fg);
+	--color-muted: var(--fg-muted);
+	--color-line: var(--line);
+	--color-line-strong: var(--line-strong);
+	--color-primary: var(--primary);
+	--color-primary-hover: var(--primary-hover);
+	--color-on-primary: var(--primary-fg);
+	--color-danger: var(--danger);
+	--color-danger-soft: var(--danger-soft);
+	--color-success: var(--success);
+	--color-success-soft: var(--success-soft);
+	--color-warning: var(--warning);
+	--color-warning-soft: var(--warning-soft);
+	--color-info: var(--info);
+	--color-info-soft: var(--info-soft);
+	--color-neutral-soft: var(--neutral-soft);
+	--color-focus: var(--focus);
+	--shadow-card: var(--elevation-card);
+	--radius-sm: 0.375rem;
+	--radius-md: 0.5rem;
+	--radius-lg: 0.875rem;
+	--font-sans:
+		ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+	--font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+@layer base {
+	html {
+		background: var(--bg);
+		color: var(--fg);
+		font-family: var(--font-sans);
+	}
+	body {
+		min-height: 100dvh;
+	}
+	:focus-visible {
+		outline: 2px solid var(--focus);
+		outline-offset: 2px;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		*,
+		*::before,
+		*::after {
+			animation-duration: 0.01ms !important;
+			transition-duration: 0.01ms !important;
+		}
+	}
+}
