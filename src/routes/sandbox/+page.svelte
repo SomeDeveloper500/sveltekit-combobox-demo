@@ -8,6 +8,7 @@
 	import Input from '#lib/ui/Input.svelte';
 	import Select from '#lib/ui/Select.svelte';
 	import Skeleton from '#lib/ui/Skeleton.svelte';
+	import { getToasts, type ToastTone } from '#lib/ui/toast.svelte.js';
 
 	const swatches = [
 		['bg', 'bg-bg'],
@@ -28,6 +29,8 @@
 		{ value: 'old', label: 'Oldest first' },
 		{ value: 'rated', label: 'Top rated (unavailable)', disabled: true }
 	];
+	const toasts = getToasts();
+	const toastTones: ToastTone[] = ['info', 'success', 'warning', 'danger'];
 	let email = $state('');
 	let sort = $state('');
 
@@ -162,6 +165,38 @@
 					<Skeleton class="h-4 w-1/2" />
 					<Skeleton class="h-4 w-3/4" />
 				</div>
+			</div>
+		</Card>
+
+		<Card as="section" aria-labelledby="toasts" class="space-y-4">
+			<Heading level={2} size={3} id="toasts">Toast</Heading>
+			<p class="text-sm text-muted">
+				From any component:
+				<code class="rounded-sm bg-neutral-soft px-1.5 py-0.5 font-mono text-xs text-fg">
+					getToasts().add({'{'} tone: 'success', message: 'Saved' {'}'})
+				</code>
+			</p>
+			<div class="flex flex-wrap gap-3">
+				{#each toastTones as tone (tone)}
+					<Button
+						variant="secondary"
+						onclick={() =>
+							toasts.add({
+								tone,
+								title: `A ${tone} toast`,
+								message: 'Hover or focus it to pause.'
+							})}
+					>
+						Show {tone}
+					</Button>
+				{/each}
+				<Button
+					variant="ghost"
+					onclick={() => toasts.add({ message: 'Stays until dismissed.', duration: 0 })}
+				>
+					Show sticky
+				</Button>
+				<Button variant="ghost" onclick={() => toasts.clear()}>Clear all</Button>
 			</div>
 		</Card>
 
