@@ -116,6 +116,30 @@
 		text-wrap: balance;
 		line-height: 1.2;
 	}
+	/* A modal dialog locks page scroll; the stable gutter keeps the layout from jumping. */
+	html {
+		scrollbar-gutter: stable;
+	}
+	html:has(dialog[open]) {
+		overflow: hidden;
+	}
+	dialog[open] {
+		animation: dialog-in 160ms ease-out;
+	}
+	dialog[open]::backdrop {
+		animation: dialog-fade 160ms ease-out;
+	}
+	@keyframes dialog-in {
+		from {
+			opacity: 0;
+			transform: translateY(0.5rem) scale(0.98);
+		}
+	}
+	@keyframes dialog-fade {
+		from {
+			opacity: 0;
+		}
+	}
 	::selection {
 		background: var(--primary);
 		color: var(--primary-fg);

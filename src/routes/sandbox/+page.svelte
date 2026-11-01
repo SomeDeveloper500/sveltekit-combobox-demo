@@ -3,7 +3,9 @@
 	import Badge from '#lib/ui/Badge.svelte';
 	import Button from '#lib/ui/Button.svelte';
 	import Card from '#lib/ui/Card.svelte';
+	import Combobox from '#lib/ui/Combobox.svelte';
 	import Container from '#lib/ui/Container.svelte';
+	import Dialog from '#lib/ui/Dialog.svelte';
 	import Heading from '#lib/ui/Heading.svelte';
 	import Input from '#lib/ui/Input.svelte';
 	import Select from '#lib/ui/Select.svelte';
@@ -33,6 +35,22 @@
 	const toastTones: ToastTone[] = ['info', 'success', 'warning', 'danger'];
 	let email = $state('');
 	let sort = $state('');
+	const tagOptions = [
+		{ value: 'a11y', label: 'Accessibility' },
+		{ value: 'perf', label: 'Performance' },
+		{ value: 'ssr', label: 'Server rendering' },
+		{ value: 'svelte', label: 'Svelte 5' },
+		{ value: 'tailwind', label: 'Tailwind' },
+		{ value: 'testing', label: 'Testing' },
+		{ value: 'i18n', label: 'Internationalisation' },
+		{ value: 'legacy', label: 'Legacy (unavailable)', disabled: true },
+		{ value: 'cafe', label: 'Café' }
+	];
+	let tag = $state('');
+	let infoOpen = $state(false);
+	let confirmOpen = $state(false);
+	let formOpen = $state(false);
+	let dialogTag = $state('');
 
 	let theme = $state<'light' | 'dark'>('light');
 
@@ -156,6 +174,73 @@
 				<Select label="Small select" size="sm" options={sortOptions} error="Pick another order." />
 			</div>
 		</Card>
+
+		<Card as="section" aria-labelledby="combobox" class="space-y-4">
+			<Heading level={2} size={3} id="combobox">Combobox</Heading>
+			<div class="grid gap-4 sm:grid-cols-2">
+				<Combobox
+					label="Tag"
+					options={tagOptions}
+					bind:value={tag}
+					placeholder="Type to filter"
+					hint="Selected: {tag || 'nothing'}"
+				/>
+				<Combobox label="Disabled" options={tagOptions} value="a11y" disabled />
+				<Combobox label="With error" options={tagOptions} error="Pick a tag." />
+			</div>
+		</Card>
+
+		<Card as="section" aria-labelledby="dialogs" class="space-y-4">
+			<Heading level={2} size={3} id="dialogs">Dialog</Heading>
+			<div class="flex flex-wrap gap-3">
+				<Button variant="secondary" onclick={() => (infoOpen = true)}>Open dialog</Button>
+				<Button variant="secondary" onclick={() => (confirmOpen = true)}>Open confirmation</Button>
+				<Button variant="secondary" onclick={() => (formOpen = true)}>Open with combobox</Button>
+			</div>
+		</Card>
+
+		<Dialog
+			bind:open={infoOpen}
+			title="About this dialog"
+			description="Escape, the close button and a click on the backdrop all close it."
+		>
+			<p class="text-sm">
+				Focus is trapped inside while it is open and returns to the button that opened it.
+			</p>
+			{#snippet footer(close)}
+				<Button onclick={close}>Got it</Button>
+			{/snippet}
+		</Dialog>
+
+		<Dialog
+			bind:open={confirmOpen}
+			size="sm"
+			dismissible={false}
+			title="Mark as archived?"
+			description="This cannot be undone. Only the buttons close this dialog."
+		>
+			{#snippet footer(close)}
+				<!-- autofocus on the safe choice -->
+				<Button variant="secondary" autofocus onclick={close}>Cancel</Button>
+				<Button
+					variant="danger"
+					onclick={() => {
+						toasts.add({ tone: 'success', message: 'Archived.' });
+						close();
+					}}
+				>
+					Archive
+				</Button>
+			{/snippet}
+		</Dialog>
+
+		<Dialog bind:open={formOpen} title="Pick a tag">
+			<Combobox label="Tag" options={tagOptions} bind:value={dialogTag} />
+			<p class="mt-3 text-sm text-muted">Escape closes the combobox list first, then the dialog.</p>
+			{#snippet footer(close)}
+				<Button onclick={close}>Done</Button>
+			{/snippet}
+		</Dialog>
 
 		<Card as="section" aria-labelledby="skeletons" class="space-y-3">
 			<Heading level={2} size={3} id="skeletons">Skeleton</Heading>
