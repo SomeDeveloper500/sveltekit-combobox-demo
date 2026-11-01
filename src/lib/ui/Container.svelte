@@ -1,13 +1,17 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
 	import { cx } from './cx';
 
 	type Size = 'narrow' | 'default' | 'wide';
-	let {
-		size = 'default',
-		class: className,
-		children
-	}: { size?: Size; class?: string; children: Snippet } = $props();
+	type Props = {
+		as?: 'div' | 'main' | 'section' | 'header' | 'footer' | 'nav';
+		size?: Size;
+		class?: string;
+		children: Snippet;
+	} & Omit<HTMLAttributes<HTMLElement>, 'children' | 'class'>;
+
+	let { as = 'div', size = 'default', class: className, children, ...rest }: Props = $props();
 
 	const sizes: Record<Size, string> = {
 		narrow: 'max-w-2xl',
@@ -16,6 +20,10 @@
 	};
 </script>
 
-<div class={cx('mx-auto w-full px-4 sm:px-6', sizes[size], className)}>
+<svelte:element
+	this={as}
+	class={cx('mx-auto w-full px-4 sm:px-6 lg:px-8', sizes[size], className)}
+	{...rest}
+>
 	{@render children()}
-</div>
+</svelte:element>

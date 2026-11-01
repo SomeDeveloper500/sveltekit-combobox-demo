@@ -5,6 +5,9 @@
 	import Card from '#lib/ui/Card.svelte';
 	import Container from '#lib/ui/Container.svelte';
 	import Heading from '#lib/ui/Heading.svelte';
+	import Input from '#lib/ui/Input.svelte';
+	import Select from '#lib/ui/Select.svelte';
+	import Skeleton from '#lib/ui/Skeleton.svelte';
 
 	const swatches = [
 		['bg', 'bg-bg'],
@@ -19,6 +22,14 @@
 	] as const;
 	const variants = ['primary', 'secondary', 'ghost', 'danger'] as const;
 	const tones = ['neutral', 'success', 'warning', 'danger', 'info'] as const;
+
+	const sortOptions = [
+		{ value: 'new', label: 'Newest first' },
+		{ value: 'old', label: 'Oldest first' },
+		{ value: 'rated', label: 'Top rated (unavailable)', disabled: true }
+	];
+	let email = $state('');
+	let sort = $state('');
 
 	let theme = $state<'light' | 'dark'>('light');
 
@@ -79,6 +90,8 @@
 				<Button disabled>disabled</Button>
 				<Button loading>loading</Button>
 				<Button href="#buttons" variant="secondary">link</Button>
+				<Button href="#buttons" variant="secondary" disabled>link disabled</Button>
+				<Button href="#buttons" variant="secondary" loading>link loading</Button>
 			</div>
 		</Card>
 
@@ -91,7 +104,7 @@
 			</div>
 			<div class="flex flex-wrap gap-2">
 				{#each tones as tone (tone)}
-					<Badge {tone} dot>{tone}</Badge>
+					<Badge {tone} dot label="Status: ">{tone}</Badge>
 				{/each}
 			</div>
 		</Card>
@@ -104,8 +117,10 @@
 					<p class="mt-1 text-sm text-muted">Static card.</p>
 				</Card>
 				<Card as="li" interactive>
-					<Heading level={3} size={4}>Interactive</Heading>
-					<p class="mt-1 text-sm text-muted">Lifts on hover.</p>
+					<Heading level={3} size={4}>
+						<a href="#cards" class="outline-none after:absolute after:inset-0">Interactive</a>
+					</Heading>
+					<p class="mt-1 text-sm text-muted">Stretched link: lifts on hover.</p>
 				</Card>
 				<Card as="li" padding="lg">
 					<Heading level={3} size={4}>Large padding</Heading>
@@ -113,6 +128,42 @@
 				</Card>
 			</ul>
 		</section>
+
+		<Card as="section" aria-labelledby="forms" class="space-y-4">
+			<Heading level={2} size={3} id="forms">Input, Select</Heading>
+			<div class="grid gap-4 sm:grid-cols-2">
+				<Input
+					label="Email"
+					type="email"
+					bind:value={email}
+					placeholder="you@example.com"
+					required
+				/>
+				<Input label="With hint" hint="We never share it." />
+				<Input label="With error" value="nope" error="Enter a valid email address." />
+				<Input label="Disabled" value="read only" disabled />
+				<Select
+					label="Sort"
+					options={sortOptions}
+					bind:value={sort}
+					placeholder="Choose order"
+					hint="Selected: {sort || 'nothing'}"
+				/>
+				<Select label="Disabled select" disabled options={sortOptions} value="new" />
+				<Select label="Small select" size="sm" options={sortOptions} error="Pick another order." />
+			</div>
+		</Card>
+
+		<Card as="section" aria-labelledby="skeletons" class="space-y-3">
+			<Heading level={2} size={3} id="skeletons">Skeleton</Heading>
+			<div class="flex items-center gap-3">
+				<Skeleton radius="full" class="size-12" />
+				<div class="flex-1 space-y-2">
+					<Skeleton class="h-4 w-1/2" />
+					<Skeleton class="h-4 w-3/4" />
+				</div>
+			</div>
+		</Card>
 
 		<Card as="section" aria-labelledby="headings" class="space-y-2">
 			<Heading level={2} size={3} id="headings">Heading</Heading>

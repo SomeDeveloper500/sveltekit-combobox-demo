@@ -1,16 +1,21 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
 	import { cx } from './cx';
 
 	type Level = 1 | 2 | 3 | 4;
-	/** `level` is the semantic heading, `size` the visual one: they are decoupled on purpose. */
-	let {
-		level,
-		size = level,
-		id,
-		class: className,
-		children
-	}: { level: Level; size?: Level; id?: string; class?: string; children: Snippet } = $props();
+	/**
+	 * `level` is the semantic heading, `size` the visual one: they are decoupled on purpose.
+	 * Color is inherited from the page (no `text-fg` here), so `class="text-muted"` just works.
+	 */
+	type Props = {
+		level: Level;
+		size?: Level;
+		class?: string;
+		children: Snippet;
+	} & Omit<HTMLAttributes<HTMLHeadingElement>, 'children' | 'class'>;
+
+	let { level, size = level, class: className, children, ...rest }: Props = $props();
 
 	const sizes: Record<Level, string> = {
 		1: 'text-4xl font-extrabold tracking-tight sm:text-5xl',
@@ -20,6 +25,6 @@
 	};
 </script>
 
-<svelte:element this={`h${level}`} {id} class={cx(sizes[size], 'text-fg', className)}>
+<svelte:element this={`h${level}`} class={cx(sizes[size], 'break-words', className)} {...rest}>
 	{@render children()}
 </svelte:element>

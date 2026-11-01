@@ -98,6 +98,8 @@
 
 @layer base {
 	html {
+		/* Keeps #anchor targets clear of a sticky header. */
+		scroll-padding-top: 5rem;
 		background: var(--bg);
 		color: var(--fg);
 		font-family: var(--font-sans);
