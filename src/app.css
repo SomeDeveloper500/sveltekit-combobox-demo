@@ -22,6 +22,8 @@
 	--primary-hover: #1e40af;
 	--primary-fg: #ffffff;
 	--danger: #b91c1c;
+	--danger-hover: #991b1b;
+	--danger-fg: #ffffff;
 	--danger-soft: #fee2e2;
 	--success: #15803d;
 	--success-soft: #dcfce7;
@@ -47,6 +49,8 @@
 	--primary-hover: #9dbdff;
 	--primary-fg: #0b1020;
 	--danger: #f87171;
+	--danger-hover: #fca5a5;
+	--danger-fg: #0b1020;
 	--danger-soft: #451a1a;
 	--success: #4ade80;
 	--success-soft: #14341f;
@@ -71,6 +75,8 @@
 	--color-primary-hover: var(--primary-hover);
 	--color-on-primary: var(--primary-fg);
 	--color-danger: var(--danger);
+	--color-danger-hover: var(--danger-hover);
+	--color-on-danger: var(--danger-fg);
 	--color-danger-soft: var(--danger-soft);
 	--color-success: var(--success);
 	--color-success-soft: var(--success-soft);
@@ -84,6 +90,7 @@
 	--radius-sm: 0.375rem;
 	--radius-md: 0.5rem;
 	--radius-lg: 0.875rem;
+	--radius-xl: 1.125rem;
 	--font-sans:
 		ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 	--font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -97,6 +104,19 @@
 	}
 	body {
 		min-height: 100dvh;
+		-webkit-font-smoothing: antialiased;
+		line-height: 1.6;
+	}
+	h1,
+	h2,
+	h3,
+	h4 {
+		text-wrap: balance;
+		line-height: 1.2;
+	}
+	::selection {
+		background: var(--primary);
+		color: var(--primary-fg);
 	}
 	:focus-visible {
 		outline: 2px solid var(--focus);
