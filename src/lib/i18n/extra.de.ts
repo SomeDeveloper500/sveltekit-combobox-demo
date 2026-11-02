@@ -1,0 +1,60 @@
+import type { extraEn } from './extra.en';
+
+/** German counterpart of `extra.en.ts`; the type makes a missing or extra key a compile error. */
+export const extraDe: Record<keyof typeof extraEn, string> = {
+	'home.meta.description':
+		'Ein Performance-Stack für Teams, die liefern: schnelle Seiten, saubere Daten und nichts, was im Weg steht.',
+	'home.features.1.title': 'Von Haus aus schnell',
+	'home.features.1.body':
+		'Seiten werden vorab gerendert und liefern nur den Code, den sie brauchen.',
+	'home.features.2.title': 'Durchgängig typisiert',
+	'home.features.2.body':
+		'Ein Schema beschreibt die Daten auf dem Server, in der URL und in der Oberfläche.',
+	'home.features.3.title': 'Für alle zugänglich',
+	'home.features.3.body':
+		'Per Tastatur bedienbar, mit Screenreadern getestet und in mehreren Sprachen verfügbar.',
+	'home.pricing.title': 'Einfache Preise',
+	'home.pricing.subtitle': 'Starte kostenlos und wechsle, wenn dein Team wächst.',
+	'home.pricing.perMonth': 'pro Monat',
+	'home.pricing.custom': 'Individuell',
+	'home.pricing.popular': 'Am beliebtesten',
+	'home.pricing.starter.name': 'Starter',
+	'home.pricing.starter.tagline': 'Für Nebenprojekte und zum Testen.',
+	'home.pricing.starter.f1': '1 Projekt',
+	'home.pricing.starter.f2': 'Community-Support',
+	'home.pricing.starter.f3': 'Grundlegende Analysen',
+	'home.pricing.team.name': 'Team',
+	'home.pricing.team.tagline': 'Für Teams, die jede Woche liefern.',
+	'home.pricing.team.f1': 'Unbegrenzt viele Projekte',
+	'home.pricing.team.f2': 'Vorrangiger Support',
+	'home.pricing.team.f3': 'Performance-Berichte',
+	'home.pricing.enterprise.name': 'Enterprise',
+	'home.pricing.enterprise.tagline': 'Für Organisationen mit besonderen Anforderungen.',
+	'home.pricing.enterprise.f1': 'Single Sign-on',
+	'home.pricing.enterprise.f2': 'Persönlicher Support',
+	'home.pricing.enterprise.f3': 'Individuelle Vereinbarungen',
+	'home.proof.title': 'Teams mögen es',
+	'home.proof.disclaimer': 'Beispielzitate für diese Demo.',
+	'home.proof.1.quote':
+		'Wir haben das Seitengewicht halbiert und streiten nicht mehr über Performance.',
+	'home.proof.1.author': 'Maria Keller',
+	'home.proof.1.role': 'Head of Engineering, Northwind',
+	'home.proof.2.quote':
+		'Dasselbe Schema prüft unsere Formulare, URLs und API. Weniger Fehler, weniger Klebecode.',
+	'home.proof.2.author': 'Tomasz Nowak',
+	'home.proof.2.role': 'Tech Lead, Contoso',
+	'site.name': 'Demo Co.',
+	'a11y.skipToContent': 'Zum Hauptinhalt springen',
+	'a11y.mainNav': 'Hauptnavigation',
+	'a11y.language': 'Sprache',
+	'a11y.toggleTheme': 'Dunkelmodus',
+	'lang.en': 'English',
+	'lang.de': 'Deutsch',
+	'error.notFound.title': 'Seite nicht gefunden',
+	'error.notFound.body': 'Die gesuchte Seite existiert nicht oder wurde verschoben.',
+	'error.generic.title': 'Etwas ist schiefgelaufen',
+	'error.generic.body':
+		'Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es gleich noch einmal.',
+	'error.reference': 'Referenz: {id}',
+	'error.backHome': 'Zurück zur Startseite'
+};

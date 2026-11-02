@@ -1,7 +1,8 @@
 import type { Locale } from '#lib/schemas/common.js';
 import de from '../../../mocks/i18n.de.json';
 import en from '../../../mocks/i18n.en.json';
-import { extraDe, extraEn } from './extra';
+import { extraDe } from './extra.de';
+import { extraEn } from './extra.en';
 
 /** Every UI string, per locale: the provided dictionaries plus our own additions. */
 export const dictionaries = {

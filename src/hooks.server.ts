@@ -16,7 +16,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const target = localeRedirect({
 		method: event.request.method,
 		pathname: event.url.pathname,
-		search: event.url.search,
+		search: () => event.url.search,
 		acceptLanguage
 	});
 	if (target) {

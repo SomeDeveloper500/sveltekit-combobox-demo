@@ -47,6 +47,14 @@ describe('the dictionaries', () => {
 			'dashboard.items.column.ctr',
 			'footer.copy',
 			'site.name',
+			// Plan names, people and company names are the same in both languages.
+			'home.pricing.starter.name',
+			'home.pricing.team.name',
+			'home.pricing.enterprise.name',
+			'home.proof.1.author',
+			'home.proof.1.role',
+			'home.proof.2.author',
+			'home.proof.2.role',
 			'lang.en',
 			'lang.de'
 		]);

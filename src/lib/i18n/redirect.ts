@@ -9,7 +9,8 @@ export const LOCALIZED_SECTIONS = ['blog', 'search', 'login', 'dashboard'] as co
 type Request = {
 	method: string;
 	pathname: string;
-	search: string;
+	/** A function, because SvelteKit forbids reading `url.search` while prerendering. */
+	search: () => string;
 	acceptLanguage: string | null | undefined;
 };
 
@@ -35,5 +36,5 @@ export function localeRedirect({
 	const isRoot = pathname === '/';
 	if (!isRoot && !(LOCALIZED_SECTIONS as readonly string[]).includes(section)) return null;
 
-	return `${localizePath(negotiateLocale(acceptLanguage), pathname)}${search}`;
+	return `${localizePath(negotiateLocale(acceptLanguage), pathname)}${search()}`;
 }

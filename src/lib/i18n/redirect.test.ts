@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { LOCALIZED_SECTIONS, localeRedirect } from './redirect';
 
 const go = (pathname: string, acceptLanguage: string | null = null, search = '', method = 'GET') =>
-	localeRedirect({ method, pathname, search, acceptLanguage });
+	localeRedirect({ method, pathname, search: () => search, acceptLanguage });
 
 describe('the root', () => {
 	it('goes to the language the browser asks for', () => {
