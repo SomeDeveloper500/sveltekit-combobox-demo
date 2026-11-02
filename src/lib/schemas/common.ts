@@ -1,7 +1,9 @@
 import { z } from 'zod';
-import { LOCALES } from './locales.js';
 
-export { LOCALES };
+// The supported UI locales: the single list everything else derives from, the route matcher in
+// `src/params` included. This file is loaded by Node itself at build time (see that file), so it
+// imports only `zod` and uses erasable TypeScript only.
+export const LOCALES = ['en', 'de'] as const;
 export const localeSchema = z.enum(LOCALES);
 export type Locale = z.infer<typeof localeSchema>;
 export const DEFAULT_LOCALE: Locale = 'en';

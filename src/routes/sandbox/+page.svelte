@@ -1,17 +1,17 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import Badge from '#lib/ui/Badge.svelte';
-	import Button from '#lib/ui/Button.svelte';
-	import Card from '#lib/ui/Card.svelte';
-	import Combobox from '#lib/ui/Combobox.svelte';
-	import Container from '#lib/ui/Container.svelte';
-	import Dialog from '#lib/ui/Dialog.svelte';
-	import Heading from '#lib/ui/Heading.svelte';
-	import Input from '#lib/ui/Input.svelte';
-	import Select from '#lib/ui/Select.svelte';
-	import Skeleton from '#lib/ui/Skeleton.svelte';
+	import Badge from '#lib/ui/Badge/Badge.svelte';
+	import Button from '#lib/ui/Button/Button.svelte';
+	import Card from '#lib/ui/Card/Card.svelte';
+	import Combobox from '#lib/ui/Combobox/Combobox.svelte';
+	import Container from '#lib/ui/Container/Container.svelte';
+	import Dialog from '#lib/ui/Dialog/Dialog.svelte';
+	import Heading from '#lib/ui/Heading/Heading.svelte';
+	import Input from '#lib/ui/Input/Input.svelte';
+	import Select from '#lib/ui/Select/Select.svelte';
+	import Skeleton from '#lib/ui/Skeleton/Skeleton.svelte';
 	import { applyTheme, currentTheme, otherTheme, type Theme } from '#lib/theme.js';
-	import { getToasts, type ToastTone } from '#lib/ui/toast.svelte.js';
+	import { getToasts, type ToastTone } from '#lib/ui/Toast/toast.svelte.js';
 
 	const swatches = [
 		['bg', 'bg-bg'],

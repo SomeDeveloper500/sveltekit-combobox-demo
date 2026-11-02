@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { provideI18n } from '#lib/i18n/context.js';
 	import type { Locale } from '#lib/schemas/common.js';
-	import LanguageSwitcher from '../LanguageSwitcher.svelte';
-	import ThemeToggle from '../ThemeToggle.svelte';
+	import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher.svelte';
+	import ThemeToggle from '../ThemeToggle/ThemeToggle.svelte';
 
 	/** Test-only: provides the language and renders what a page would put in its header. */
 	let { start = 'en', path = '/en/blog?page=2' }: { start?: Locale; path?: string } = $props();

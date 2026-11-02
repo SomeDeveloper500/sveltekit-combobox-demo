@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import AppShell from '#lib/components/AppShell.svelte';
+	import AppShell from '#lib/components/AppShell/AppShell.svelte';
 	import { provideI18n } from '#lib/i18n/context.js';
 	import type { LayoutProps } from './$types';
 

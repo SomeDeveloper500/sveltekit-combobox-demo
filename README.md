@@ -10,7 +10,7 @@ SvelteKit 3, Svelte 5 (runes), TypeScript, Tailwind CSS 4, Zod, Vitest, Playwrig
 
 ## Requirements
 
-- Node.js >= 22.17
+- Node.js >= 22.18 (the build imports TypeScript route params with Node itself, which needs built-in type stripping)
 - npm
 
 ## Getting started
