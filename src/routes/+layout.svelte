@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.css';
-	import favicon from '#lib/assets/favicon.svg';
+	import { asset } from '$app/paths';
 	import Toaster from '#lib/ui/Toast/Toaster.svelte';
 	import { provideToasts } from '#lib/ui/Toast/toast.svelte.js';
 	import type { LayoutProps } from './$types';
@@ -11,7 +11,7 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<link rel="icon" href={asset('favicon.svg')} type="image/svg+xml" />
 </svelte:head>
 
 {@render children()}

@@ -11,6 +11,7 @@
 		description: string;
 		/** Path or absolute URL of the social preview image. */
 		image?: string;
+		imageSize?: { width: number; height: number };
 		type?: 'website' | 'article';
 		/** Query that identifies the page, e.g. `?page=2`; it goes into canonical and hreflang. */
 		search?: string;
@@ -18,7 +19,15 @@
 		noindex?: boolean;
 	};
 
-	let { title, description, image, type, search = '', noindex = false }: Props = $props();
+	let {
+		title,
+		description,
+		image,
+		imageSize,
+		type,
+		search = '',
+		noindex = false
+	}: Props = $props();
 
 	const i18n = getI18n();
 
@@ -37,6 +46,7 @@
 			})),
 			defaultPath: `${localizePath(DEFAULT_LOCALE, rest)}${search}`,
 			image,
+			imageSize,
 			type
 		});
 	});

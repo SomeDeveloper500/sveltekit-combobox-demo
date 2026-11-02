@@ -56,4 +56,11 @@ describe('buildSeo', () => {
 		const tags = buildSeo({ ...base, image: 'https://cdn.example.com/a.png' });
 		expect(tags.openGraph['og:image']).toBe('https://cdn.example.com/a.png');
 	});
+
+	it('adds the image size only when it is given', () => {
+		const plain = buildSeo({ ...base, image: '/og.png' });
+		expect(plain.openGraph).not.toHaveProperty('og:image:width');
+		const sized = buildSeo({ ...base, image: '/og.png', imageSize: { width: 1200, height: 630 } });
+		expect(sized.openGraph).toMatchObject({ 'og:image:width': '1200', 'og:image:height': '630' });
+	});
 });

@@ -56,6 +56,8 @@
 		"#lib/*": "./src/lib/*"
 	},
 	"dependencies": {
+		"@resvg/resvg-js": "^2.6.2",
+		"satori": "^0.63.2",
 		"web-vitals": "^6.2.3",
 		"zod": "^4.6.7"
 	},

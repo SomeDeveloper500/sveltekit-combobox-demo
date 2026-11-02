@@ -4,6 +4,7 @@
 	import { getI18n } from '#lib/i18n/context.js';
 	import { localizePath } from '#lib/i18n/locale.js';
 	import { articleJsonLd, breadcrumbJsonLd } from '#lib/seo/jsonld.js';
+	import { OG_HEIGHT, OG_WIDTH } from '#lib/seo/og.js';
 	import { siteOrigin } from '#lib/site.js';
 	import Badge from '#lib/ui/Badge/Badge.svelte';
 	import Breadcrumbs from '#lib/ui/Breadcrumbs/Breadcrumbs.svelte';
@@ -19,6 +20,7 @@
 	const home = $derived(localizePath(i18n.lang));
 	const blog = $derived(localizePath(i18n.lang, '/blog'));
 	const self = $derived(localizePath(i18n.lang, `/blog/${post.slug}`));
+	const image = $derived(`${self}/og.png`);
 
 	const crumbs = $derived([
 		{ label: i18n.t('nav.home'), href: home },
@@ -38,12 +40,19 @@
 			datePublished: post.publishedAt,
 			authorName: post.author.name,
 			inLanguage: i18n.lang,
-			publisherName: i18n.t('site.name')
+			publisherName: i18n.t('site.name'),
+			image: `${siteOrigin}${image}`
 		})
 	);
 </script>
 
-<Seo title={post.title} description={post.excerpt} type="article" />
+<Seo
+	title={post.title}
+	description={post.excerpt}
+	type="article"
+	{image}
+	imageSize={{ width: OG_WIDTH, height: OG_HEIGHT }}
+/>
 <JsonLd data={article} />
 <JsonLd data={breadcrumbs} />
 

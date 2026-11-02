@@ -16,6 +16,8 @@ export type SeoInput = {
 	defaultPath?: string;
 	/** Path or absolute URL of the social preview image. */
 	image?: string;
+	/** Pixel size of the image; lets a crawler lay out the preview before it loads. */
+	imageSize?: { width: number; height: number };
 	type?: 'website' | 'article';
 };
 
@@ -60,6 +62,10 @@ export function buildSeo(input: SeoInput): SeoTags {
 	};
 	if (image) {
 		openGraph['og:image'] = image;
+		if (input.imageSize) {
+			openGraph['og:image:width'] = String(input.imageSize.width);
+			openGraph['og:image:height'] = String(input.imageSize.height);
+		}
 		twitter['twitter:image'] = image;
 	}
 	return { title, description, canonical, alternates, openGraph, twitter };
