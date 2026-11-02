@@ -33,3 +33,47 @@ export function organizationJsonLd(input: OrganizationInput): JsonLdObject {
 		...(sameAs?.length ? { sameAs: [...sameAs] } : {})
 	};
 }
+
+export type BreadcrumbItem = { name: string; url: string };
+
+/** schema.org `BreadcrumbList`; the last item is the current page. Positions start at 1. */
+export function breadcrumbJsonLd(items: readonly BreadcrumbItem[]): JsonLdObject {
+	return {
+		'@type': 'BreadcrumbList',
+		itemListElement: items.map((item, index) => ({
+			'@type': 'ListItem',
+			position: index + 1,
+			name: item.name,
+			item: item.url
+		}))
+	};
+}
+
+export type ArticleInput = {
+	headline: string;
+	description: string;
+	/** The canonical URL of the article. */
+	url: string;
+	/** ISO 8601 date or timestamp. */
+	datePublished: string;
+	authorName: string;
+	/** BCP 47 tag of the article's language. */
+	inLanguage: string;
+	publisherName: string;
+	image?: string;
+};
+
+/** schema.org `Article`. */
+export function articleJsonLd(input: ArticleInput): JsonLdObject {
+	return {
+		'@type': 'Article',
+		headline: input.headline,
+		description: input.description,
+		datePublished: input.datePublished,
+		inLanguage: input.inLanguage,
+		mainEntityOfPage: { '@type': 'WebPage', '@id': input.url },
+		author: { '@type': 'Person', name: input.authorName },
+		publisher: { '@type': 'Organization', name: input.publisherName },
+		...(input.image ? { image: input.image } : {})
+	};
+}

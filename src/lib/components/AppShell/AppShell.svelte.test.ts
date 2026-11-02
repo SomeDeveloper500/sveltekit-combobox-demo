@@ -116,9 +116,9 @@ describe('AppShell: navigation', () => {
 		await expect.element(home).not.toHaveAttribute('aria-current');
 	});
 
-	it('only links to pages that exist', async () => {
+	it('links exactly the menu items, in the page language', async () => {
 		render(ShellHarness, { lang: 'en', path: '/en' });
 		const links = [...document.querySelectorAll('nav a')].map((a) => a.getAttribute('href'));
-		expect(links).toEqual(['/en']);
+		expect(links).toEqual(['/en', '/en/blog', '/en/search']);
 	});
 });

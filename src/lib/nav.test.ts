@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { dictionaries } from '#lib/i18n/messages.js';
 import { NAV_ITEMS, isCurrent, type NavItem } from './nav';
@@ -49,5 +51,15 @@ describe('the navigation list', () => {
 
 	it('starts with the home page', () => {
 		expect(NAV_ITEMS[0].path).toBe('/');
+	});
+});
+
+describe('NAV_ITEMS', () => {
+	it('only lists pages that exist', () => {
+		for (const item of NAV_ITEMS) {
+			const dir = item.path === '/' ? '' : item.path;
+			const page = join(process.cwd(), 'src/routes/[lang=locale]', dir, '+page.svelte');
+			expect(existsSync(page), `${item.path} has no page`).toBe(true);
+		}
 	});
 });

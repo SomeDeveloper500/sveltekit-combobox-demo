@@ -10,7 +10,11 @@ export type NavItem = {
  * The main navigation. An entry is added in the stage that builds its page, so the menu never
  * links to a page that does not exist yet.
  */
-export const NAV_ITEMS: readonly NavItem[] = [{ path: '/', label: 'nav.home' }];
+export const NAV_ITEMS: readonly NavItem[] = [
+	{ path: '/', label: 'nav.home' },
+	{ path: '/blog', label: 'nav.blog' },
+	{ path: '/search', label: 'nav.search' }
+];
 
 /**
  * Whether the page being shown belongs to a menu item. `rest` is the current path without the
