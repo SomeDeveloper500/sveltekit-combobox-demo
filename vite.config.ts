@@ -30,6 +30,9 @@ export default defineConfig({
 						provider: playwright(),
 						instances: [{ browser: 'chromium', headless: true }]
 					},
+					// One test file at a time in the browser: files share a single pointer and focus, so
+					// parallel pages can disturb each other, and one Chromium stays within a modest memory budget.
+					fileParallelism: false,
 					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
 					exclude: ['src/lib/server/**']
 				}

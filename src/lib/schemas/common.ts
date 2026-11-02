@@ -1,6 +1,7 @@
 import { z } from 'zod';
+import { LOCALES } from './locales.js';
 
-export const LOCALES = ['en', 'de'] as const;
+export { LOCALES };
 export const localeSchema = z.enum(LOCALES);
 export type Locale = z.infer<typeof localeSchema>;
 export const DEFAULT_LOCALE: Locale = 'en';

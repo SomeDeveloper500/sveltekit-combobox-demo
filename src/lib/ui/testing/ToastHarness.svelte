@@ -10,4 +10,9 @@
 	onready(store);
 </script>
 
+<!-- A spot far from where toasts appear, to park the pointer on (see `mount` in the test). -->
+<div
+	data-testid="parking"
+	style="position: fixed; right: 0; bottom: 0; width: 8px; height: 8px;"
+></div>
 <Toaster />

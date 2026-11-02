@@ -10,6 +10,7 @@
 	import Input from '#lib/ui/Input.svelte';
 	import Select from '#lib/ui/Select.svelte';
 	import Skeleton from '#lib/ui/Skeleton.svelte';
+	import { applyTheme, currentTheme, otherTheme, type Theme } from '#lib/theme.js';
 	import { getToasts, type ToastTone } from '#lib/ui/toast.svelte.js';
 
 	const swatches = [
@@ -52,20 +53,13 @@
 	let formOpen = $state(false);
 	let dialogTag = $state('');
 
-	let theme = $state<'light' | 'dark'>('light');
+	let theme = $state<Theme>('light');
 
-	onMount(() => {
-		theme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
-	});
+	onMount(() => (theme = currentTheme()));
 
 	function toggleTheme() {
-		theme = theme === 'dark' ? 'light' : 'dark';
-		document.documentElement.dataset.theme = theme;
-		try {
-			localStorage.setItem('theme', theme);
-		} catch {
-			/* storage blocked: the choice lasts for this page view only */
-		}
+		theme = otherTheme(theme);
+		applyTheme(theme);
 	}
 </script>
 

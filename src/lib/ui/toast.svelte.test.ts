@@ -5,9 +5,13 @@ import ToastConsumer from './testing/ToastConsumer.svelte';
 import ToastHarness from './testing/ToastHarness.svelte';
 import { ToastStore } from './toast.svelte.js';
 
-function mount() {
+// A real pointer is shared by every test file and stays where the last click left it. A toast that
+// appears under it counts as hovered, and hovering pauses its timer, so the pointer is parked in a
+// far corner first.
+async function mount() {
 	let store!: ToastStore;
 	render(ToastHarness, { onready: (s: ToastStore) => (store = s) });
+	await userEvent.hover(page.getByTestId('parking'));
 	return store;
 }
 
@@ -45,20 +49,20 @@ describe('ToastStore', () => {
 
 describe('Toaster', () => {
 	it('renders both live regions before any toast exists', async () => {
-		mount();
+		await mount();
 		await expect.element(page.getByRole('status')).toBeInTheDocument();
 		await expect.element(page.getByRole('alert')).toBeInTheDocument();
 	});
 
 	it('shows a toast with its title and message', async () => {
-		const store = mount();
+		const store = await mount();
 		store.add({ tone: 'success', title: 'Saved', message: 'Your changes are live.', duration: 0 });
 		await expect.element(page.getByText('Saved')).toBeInTheDocument();
 		await expect.element(page.getByText('Your changes are live.')).toBeInTheDocument();
 	});
 
 	it('puts errors in the assertive region and the rest in the polite one', async () => {
-		const store = mount();
+		const store = await mount();
 		store.add({ tone: 'danger', message: 'It failed.', duration: 0 });
 		store.add({ tone: 'info', message: 'FYI.', duration: 0 });
 		await expect.element(page.getByRole('alert')).toHaveTextContent('It failed.');
@@ -67,7 +71,7 @@ describe('Toaster', () => {
 	});
 
 	it('closes with the dismiss button', async () => {
-		const store = mount();
+		const store = await mount();
 		store.add({ message: 'Close me.', duration: 0 });
 		// Keyboard, not mouse: a pointer left over the toast would pause the next test's timer (hover pauses).
 		const dismiss = page.getByRole('button', { name: 'Dismiss' });
@@ -78,7 +82,7 @@ describe('Toaster', () => {
 	});
 
 	it('closes on its own after the duration', async () => {
-		const store = mount();
+		const store = await mount();
 		store.add({ message: 'Short lived.', duration: 100 });
 		const toast = page.getByText('Short lived.');
 		await expect.element(toast).toBeInTheDocument();
@@ -86,7 +90,7 @@ describe('Toaster', () => {
 	});
 
 	it('keeps a sticky toast (duration 0)', async () => {
-		const store = mount();
+		const store = await mount();
 		store.add({ message: 'Sticky.', duration: 0 });
 		await new Promise((resolve) => setTimeout(resolve, 400));
 		await expect.element(page.getByText('Sticky.')).toBeInTheDocument();
