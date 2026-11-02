@@ -48,6 +48,8 @@ describe('the dictionaries', () => {
 			'footer.copy',
 			'site.name',
 			// Plan names, people and company names are the same in both languages.
+			// "Administrator" is the same word in both languages.
+			'role.admin',
 			'home.pricing.starter.name',
 			'home.pricing.team.name',
 			'home.pricing.enterprise.name',

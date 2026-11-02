@@ -9,6 +9,10 @@
 	provideI18n(() => page.data.lang ?? 'en');
 </script>
 
-<AppShell url={page.url}>
-	<ErrorPage status={page.status} id={page.error?.id} />
+<AppShell url={page.url} user={page.data.user}>
+	<ErrorPage
+		status={page.status}
+		id={page.error?.id}
+		next={`${page.url.pathname}${page.url.search}`}
+	/>
 </AppShell>

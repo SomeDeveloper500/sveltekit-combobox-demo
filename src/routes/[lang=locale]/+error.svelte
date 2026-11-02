@@ -4,4 +4,8 @@
 </script>
 
 <!-- Inside the locale layout, so the language and the shell are already in place. -->
-<ErrorPage status={page.status} id={page.error?.id} />
+<ErrorPage
+	status={page.status}
+	id={page.error?.id}
+	next={`${page.url.pathname}${page.url.search}`}
+/>

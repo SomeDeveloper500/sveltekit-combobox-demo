@@ -7,10 +7,11 @@
 	let {
 		lang = 'en',
 		status = 404,
-		id = undefined
-	}: { lang?: Locale; status?: number; id?: string } = $props();
+		id = undefined,
+		next = undefined
+	}: { lang?: Locale; status?: number; id?: string; next?: string } = $props();
 
 	provideI18n(() => lang);
 </script>
 
-<ErrorPage {status} {id} />
+<ErrorPage {status} {id} {next} />

@@ -1,15 +1,39 @@
 import type { RequestEvent } from '@sveltejs/kit';
 import type { ResolveOptions } from '@sveltejs/kit/hooks';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { handle, handleError } from './hooks.server';
 
-type Options = { method?: string; acceptLanguage?: string };
+// The session itself is tested on its own; here `currentUser` just says who the visitor is.
+const mocks = vi.hoisted(() => ({ user: null as unknown }));
+vi.mock('#lib/server/auth.js', () => ({
+	assertSessionConfigured: () => {},
+	currentUser: async () => mocks.user
+}));
+
+const VIEWER = {
+	id: 'demo_viewer',
+	email: 'viewer@demo.test',
+	name: 'Demo Viewer',
+	role: 'viewer'
+};
+
+beforeEach(() => {
+	mocks.user = null;
+});
+
+type Options = { method?: string; acceptLanguage?: string; accept?: string };
 
 /** Runs `handle` on a fake request; `resolve` stands in for the rest of SvelteKit. */
-async function run(path: string, { method = 'GET', acceptLanguage }: Options = {}) {
+async function run(path: string, { method = 'GET', acceptLanguage, accept }: Options = {}) {
 	const url = new URL(path, 'https://example.test');
 	const headers = new Headers(acceptLanguage ? { 'accept-language': acceptLanguage } : {});
-	const event = { url, request: new Request(url, { method, headers }), locals: {} } as RequestEvent;
+	if (accept) headers.set('accept', accept);
+	const event = {
+		url,
+		request: new Request(url, { method, headers }),
+		locals: {},
+		cookies: {}
+	} as unknown as RequestEvent;
 	let options: ResolveOptions | undefined;
 	const resolve = vi.fn(async (_event: RequestEvent, opts?: ResolveOptions) => {
 		options = opts;
@@ -111,5 +135,73 @@ describe('handleError', () => {
 		const result = handleError({ kind: 'unknown', error: new Error('boom'), event } as never);
 		expect(result).toEqual({ id: expect.stringMatching(/^[0-9a-f]{8}$/) });
 		log.mockRestore();
+	});
+});
+
+describe('handle: the dashboard guard', () => {
+	it('sends an anonymous visitor to the login page and remembers where they were going', async () => {
+		const { response, resolve } = await run('/en/dashboard/items?page=2');
+		expect(response.status).toBe(303);
+		expect(response.headers.get('location')).toBe(
+			'/en/login?next=%2Fen%2Fdashboard%2Fitems%3Fpage%3D2'
+		);
+		expect(resolve).not.toHaveBeenCalled();
+	});
+
+	it('keeps the language of the request in the login URL', async () => {
+		const { response } = await run('/de/dashboard');
+		expect(response.headers.get('location')).toBe('/de/login?next=%2Fde%2Fdashboard');
+	});
+
+	it('lets a signed-in user through and records who they are', async () => {
+		mocks.user = VIEWER;
+		const { response, resolve, event } = await run('/en/dashboard');
+		expect(response.status).toBe(200);
+		expect(resolve).toHaveBeenCalledOnce();
+		expect(event.locals.user).toEqual(VIEWER);
+	});
+
+	it('marks the login page and the dashboard as private, so no shared cache keeps them', async () => {
+		mocks.user = VIEWER;
+		expect((await run('/en/dashboard')).response.headers.get('cache-control')).toBe(
+			'private, no-store'
+		);
+		expect((await run('/en/login')).response.headers.get('cache-control')).toBe(
+			'private, no-store'
+		);
+		expect((await run('/en/dashboard', {})).response.headers.get('cache-control')).toBe(
+			'private, no-store'
+		);
+	});
+
+	it('marks the redirect to the login page as private too', async () => {
+		expect((await run('/en/dashboard')).response.headers.get('cache-control')).toBe(
+			'private, no-store'
+		);
+	});
+
+	it('leaves public pages cacheable and anonymous', async () => {
+		const { response, resolve, event } = await run('/en/blog');
+		expect(response.status).toBe(200);
+		expect(resolve).toHaveBeenCalledOnce();
+		expect(response.headers.get('cache-control')).toBeNull();
+		expect(event.locals.user).toBeNull();
+	});
+
+	it('puts the security headers on the redirect to the login page', async () => {
+		const { response } = await run('/en/dashboard');
+		expect(response.headers.get('x-content-type-options')).toBe('nosniff');
+	});
+
+	it('answers a script that wants JSON with 401 and a code, not with a redirect', async () => {
+		const { response, resolve } = await run('/en/dashboard/items/x/status', {
+			method: 'POST',
+			accept: 'application/json'
+		});
+		expect(response.status).toBe(401);
+		expect(await response.json()).toEqual({ code: 'unauthenticated' });
+		expect(response.headers.get('location')).toBeNull();
+		expect(response.headers.get('cache-control')).toBe('private, no-store');
+		expect(resolve).not.toHaveBeenCalled();
 	});
 });

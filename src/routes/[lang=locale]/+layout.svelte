@@ -23,6 +23,6 @@
 	});
 </script>
 
-<AppShell {url}>
+<AppShell {url} user={data.user}>
 	{@render children()}
 </AppShell>

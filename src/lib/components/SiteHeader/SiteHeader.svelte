@@ -2,12 +2,14 @@
 	import { getI18n } from '#lib/i18n/context.js';
 	import { localizePath, splitLocale, type PageUrl } from '#lib/i18n/locale.js';
 	import { NAV_ITEMS, isCurrent } from '#lib/nav.js';
+	import type { SessionUser } from '#lib/schemas/user.js';
 	import Container from '#lib/ui/Container/Container.svelte';
 	import { cx } from '#lib/ui/shared/cx.js';
+	import AccountMenu from '../AccountMenu/AccountMenu.svelte';
 	import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher.svelte';
 	import ThemeToggle from '../ThemeToggle/ThemeToggle.svelte';
 
-	let { url }: { url: PageUrl } = $props();
+	let { url, user = null }: { url: PageUrl; user?: SessionUser | null } = $props();
 
 	const i18n = getI18n();
 	const rest = $derived(splitLocale(url.pathname).rest);
@@ -48,6 +50,7 @@
 		<!-- eslint-enable svelte/no-navigation-without-resolve -->
 
 		<div class="flex items-center gap-1">
+			<AccountMenu {user} />
 			<LanguageSwitcher {url} />
 			<ThemeToggle />
 		</div>

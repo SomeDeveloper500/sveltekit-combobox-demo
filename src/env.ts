@@ -14,5 +14,12 @@ export const variables = defineEnvVars({
 			}
 			return url.origin;
 		}
+	},
+	SESSION_SECRET: {
+		description:
+			'Key that signs session cookies. At least 16 random characters; required in production.',
+		// Optional here: a build and the tests run without it. `lib/server/auth.ts` insists on it
+		// when the server runs in production.
+		schema: (value) => value || undefined
 	}
 });

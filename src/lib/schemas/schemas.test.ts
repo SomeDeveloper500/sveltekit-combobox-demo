@@ -5,7 +5,7 @@ import posts from '../../../mocks/posts.json';
 import tags from '../../../mocks/tags.json';
 import users from '../../../mocks/users.json';
 import { itemSchema, updateStatusSchema } from './item';
-import { loginSchema } from './login';
+import { loginSchema, validateLogin } from './login';
 import { postSchema, tagSchema } from './post';
 import { itemsQuerySchema, postQuerySchema } from './query';
 import { sessionUserSchema, userRecordSchema } from './user';
@@ -101,6 +101,34 @@ describe('loginSchema', () => {
 		expect(result.success).toBe(false);
 		const messages = result.error?.issues.map((issue) => issue.message);
 		expect(messages).toEqual(['invalid_email', 'required']);
+	});
+});
+
+describe('validateLogin', () => {
+	it('returns the trimmed data when the form is valid', () => {
+		expect(validateLogin({ email: '  admin@demo.test ', password: 'x' })).toEqual({
+			ok: true,
+			data: { email: 'admin@demo.test', password: 'x' }
+		});
+	});
+
+	it('names the field and the problem, one per field', () => {
+		expect(validateLogin({ email: 'nope', password: '' })).toEqual({
+			ok: false,
+			errors: { email: 'invalid_email', password: 'required' }
+		});
+	});
+
+	it('calls an empty or blank email missing, not malformed', () => {
+		for (const email of ['', '   ']) {
+			const result = validateLogin({ email, password: 'x' });
+			expect(result).toEqual({ ok: false, errors: { email: 'required' } });
+		}
+	});
+
+	it('does not trim the password', () => {
+		const result = validateLogin({ email: 'a@b.test', password: ' ' });
+		expect(result.ok).toBe(true);
 	});
 });
 
