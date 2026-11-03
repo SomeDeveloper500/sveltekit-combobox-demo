@@ -15,6 +15,20 @@ export const variables = defineEnvVars({
 			return url.origin;
 		}
 	},
+	RUM_SAMPLE_RATE: {
+		public: true,
+		static: true,
+		description:
+			'Share of page loads (0 to 1) that report web vitals to /api/vitals. Errors are always reported. Development always samples every load.',
+		schema: (value) => {
+			if (!value) return 0.1;
+			const rate = Number(value);
+			if (!Number.isFinite(rate) || rate < 0 || rate > 1) {
+				throw new Error('RUM_SAMPLE_RATE must be a number from 0 to 1');
+			}
+			return rate;
+		}
+	},
 	SESSION_SECRET: {
 		description:
 			'Key that signs session cookies. At least 16 random characters; required in production.',

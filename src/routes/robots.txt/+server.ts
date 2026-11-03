@@ -9,7 +9,7 @@ export const prerender = true;
 export const GET: RequestHandler = () =>
 	new Response(
 		buildRobots({
-			disallow: ['/sandbox', ...LOCALES.map((lang) => `/${lang}/dashboard`)],
+			disallow: ['/sandbox', '/api', ...LOCALES.map((lang) => `/${lang}/dashboard`)],
 			sitemap: `${siteOrigin}/sitemap.xml`
 		}),
 		{ headers: { 'content-type': 'text/plain; charset=utf-8' } }
