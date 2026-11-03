@@ -10,12 +10,16 @@ export const prerender = true;
 export const entries: EntryGenerator = () =>
 	postRepository.listSlugs().flatMap((slug) => LOCALES.map((lang) => ({ lang, slug })));
 
-export const load: PageServerLoad = ({ params, locals }) => {
-	const post = postRepository.get(params.slug, locals.lang);
+export const load: PageServerLoad = ({ params }) => {
+	// The language comes from the route parameter, not from `locals`: SvelteKit reruns a load only
+	// when something it read has changed, and `locals` is invisible to it. Switching /en/... to
+	// /de/... in place would otherwise keep the old language's data on screen.
+	const lang = params.lang;
+	const post = postRepository.get(params.slug, lang);
 	if (!post) error(404);
 
 	const tagLabels = Object.fromEntries(
-		postRepository.listTags().map((tag) => [tag.slug, tag.label[locals.lang]])
+		postRepository.listTags().map((tag) => [tag.slug, tag.label[lang]])
 	);
 	return { post, tagLabels };
 };

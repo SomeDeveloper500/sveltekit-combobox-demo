@@ -97,10 +97,11 @@
 	}
 
 	/**
-	 * The list as the server last reported it for this view. A client-side navigation delivers the
-	 * result as a promise; a refresh after a status change is one too, and the table must not turn
-	 * into a skeleton and back for that. So the table shows the last result of the same view while
-	 * the new one is on its way, and a skeleton only when there is none (a different view).
+	 * The list as the server last reported it. A client-side navigation delivers the result as a
+	 * promise, and so does a refresh after a status change. The table stays on screen while the new
+	 * result is on its way (dimmed, and marked busy, when it is for another view): replacing it
+	 * with a skeleton would destroy the sort link or button the person is using and drop their
+	 * keyboard focus. A skeleton is for when there is nothing to show yet.
 	 */
 	type Outcome = Awaited<PageData['result']>;
 	const view = $derived(JSON.stringify(data.query));
@@ -120,9 +121,8 @@
 			live = false;
 		};
 	});
-	const outcome = $derived(
-		data.result instanceof Promise ? (last?.view === view ? last.outcome : null) : data.result
-	);
+	const outcome = $derived(data.result instanceof Promise ? (last?.outcome ?? null) : data.result);
+	const stale = $derived(data.result instanceof Promise && last?.view !== view);
 
 	/** Only the list is reloaded, not the layout, the owners or the session. */
 	const refresh = () => invalidate(ITEMS_LIST);
@@ -285,39 +285,41 @@
 		</div>
 	{:else}
 		{@const list = outcome.value}
-		<p role="status" class="text-muted">
-			{i18n.t('dashboard.items.summary', { count: list.total })}
-		</p>
-		<DataTable
-			rows={list.rows}
-			{columns}
-			rowKey={(row) => row.id}
-			caption={i18n.t('dashboard.items.title')}
-			sort={{ key: query.sort, direction: query.dir }}
-			{sortHref}
-			sortLabel={(column) => i18n.t('dashboard.items.sortBy', { column })}
-		>
-			{#snippet empty()}
-				<p>{filtered ? i18n.t('dashboard.items.noMatch') : i18n.t('dashboard.items.empty')}</p>
-				{#if filtered}
-					<Button
-						variant="ghost"
-						class="mt-3"
-						href={href({ q: '', status: '', channel: '', owner: '' })}
-					>
-						{i18n.t('dashboard.items.reset')}
-					</Button>
-				{/if}
-			{/snippet}
-		</DataTable>
-		<Pagination
-			page={list.page}
-			pages={list.pages}
-			href={(page) => href({ page })}
-			label={i18n.t('pagination.label')}
-			previousLabel={i18n.t('pagination.previous')}
-			nextLabel={i18n.t('pagination.next')}
-			pageLabel={(page) => i18n.t('pagination.page', { page })}
-		/>
+		<div class={['space-y-8 transition-opacity', stale && 'opacity-60']} aria-busy={stale}>
+			<p role="status" class="text-muted">
+				{i18n.t('dashboard.items.summary', { count: list.total })}
+			</p>
+			<DataTable
+				rows={list.rows}
+				{columns}
+				rowKey={(row) => row.id}
+				caption={i18n.t('dashboard.items.title')}
+				sort={{ key: query.sort, direction: query.dir }}
+				{sortHref}
+				sortLabel={(column) => i18n.t('dashboard.items.sortBy', { column })}
+			>
+				{#snippet empty()}
+					<p>{filtered ? i18n.t('dashboard.items.noMatch') : i18n.t('dashboard.items.empty')}</p>
+					{#if filtered}
+						<Button
+							variant="ghost"
+							class="mt-3"
+							href={href({ q: '', status: '', channel: '', owner: '' })}
+						>
+							{i18n.t('dashboard.items.reset')}
+						</Button>
+					{/if}
+				{/snippet}
+			</DataTable>
+			<Pagination
+				page={list.page}
+				pages={list.pages}
+				href={(page) => href({ page })}
+				label={i18n.t('pagination.label')}
+				previousLabel={i18n.t('pagination.previous')}
+				nextLabel={i18n.t('pagination.next')}
+				pageLabel={(page) => i18n.t('pagination.page', { page })}
+			/>
+		</div>
 	{/if}
 </Container>

@@ -9,9 +9,10 @@ import type { PageServerLoad } from './$types';
  */
 const CACHE_CONTROL = 'public, max-age=0, s-maxage=300, stale-while-revalidate=3600';
 
-export const load: PageServerLoad = ({ url, locals, setHeaders }) => {
+export const load: PageServerLoad = ({ url, params, setHeaders }) => {
+	const lang = params.lang;
 	const { page } = blogQueryCodec.decode(url.searchParams);
-	const result = postRepository.query({ ...postQueryCodec.defaults, page }, locals.lang);
+	const result = postRepository.query({ ...postQueryCodec.defaults, page }, lang);
 
 	// One URL per page: `?page=1`, `?page=999` (past the end) and stray parameters all redirect to
 	// the canonical address, so the same list never lives at two URLs.
@@ -22,7 +23,7 @@ export const load: PageServerLoad = ({ url, locals, setHeaders }) => {
 
 	setHeaders({ 'cache-control': CACHE_CONTROL });
 	const tagLabels = Object.fromEntries(
-		postRepository.listTags().map((tag) => [tag.slug, tag.label[locals.lang]])
+		postRepository.listTags().map((tag) => [tag.slug, tag.label[lang]])
 	);
 	return { result, tagLabels };
 };

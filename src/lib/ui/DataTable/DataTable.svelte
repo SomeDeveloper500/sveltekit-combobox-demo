@@ -89,6 +89,7 @@
 							<!-- eslint-disable svelte/no-navigation-without-resolve -->
 							<a
 								href={sortHref(column.key)}
+								data-sveltekit-reset="false"
 								aria-label={sortLabel(column.header)}
 								class="inline-flex items-center gap-1 rounded text-inherit hover:text-fg"
 							>

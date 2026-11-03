@@ -20,9 +20,8 @@
 				href={switchLocaleUrl(url, locale)}
 				lang={locale}
 				hreflang={locale}
-				aria-label={i18n.t(`lang.${locale}`)}
 				aria-current={locale === i18n.lang ? 'true' : undefined}
-				data-sveltekit-noscroll
+				data-sveltekit-reset="false"
 				class={cx(
 					'inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg px-2 text-sm font-semibold uppercase transition-colors',
 					locale === i18n.lang
@@ -30,7 +29,9 @@
 						: 'text-muted hover:bg-neutral-soft hover:text-fg'
 				)}
 			>
-				{locale}
+				<!-- The short code is what is seen; the name is what is heard (in its own language). -->
+				<span aria-hidden="true">{locale}</span>
+				<span class="sr-only">{i18n.t(`lang.${locale}`)}</span>
 			</a>
 			<!-- eslint-enable svelte/no-navigation-without-resolve -->
 		</li>

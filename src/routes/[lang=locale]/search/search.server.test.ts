@@ -7,7 +7,7 @@ function run(search: string, lang: 'en' | 'de' = 'en') {
 	const headers: Record<string, string> = {};
 	const event = {
 		url: new URL(`https://example.test/${lang}/search${search}`),
-		locals: { lang },
+		params: { lang },
 		setHeaders: (h: Record<string, string>) => Object.assign(headers, h)
 	} as unknown as Event;
 	try {

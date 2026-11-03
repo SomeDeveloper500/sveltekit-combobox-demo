@@ -5,7 +5,7 @@ import { entries, load, prerender } from './+page.server';
 type Event = Parameters<typeof load>[0];
 
 function run(slug: string, lang: 'en' | 'de' = 'en') {
-	return load({ params: { lang, slug }, locals: { lang } } as unknown as Event) as {
+	return load({ params: { lang, slug } } as unknown as Event) as {
 		post: { slug: string; title: string; paragraphs: string[] };
 		tagLabels: Record<string, string>;
 	};

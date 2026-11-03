@@ -21,14 +21,20 @@
 	aria-label={label}
 	class="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex flex-col gap-3 p-4 sm:inset-x-auto sm:end-0 sm:w-96"
 >
-	<ol role="status" class="flex flex-col gap-3">
-		{#each polite as toast (toast.id)}
-			<ToastItem {toast} {dismissLabel} ondismiss={() => toasts.dismiss(toast.id)} />
-		{/each}
-	</ol>
-	<ol role="alert" class="flex flex-col gap-3">
-		{#each assertive as toast (toast.id)}
-			<ToastItem {toast} {dismissLabel} ondismiss={() => toasts.dismiss(toast.id)} />
-		{/each}
-	</ol>
+	<!-- The live region is a wrapper, not the <ol>: a role on the list would take away its list
+		semantics and leave its <li> children without a list. -->
+	<div role="status">
+		<ol class="flex flex-col gap-3">
+			{#each polite as toast (toast.id)}
+				<ToastItem {toast} {dismissLabel} ondismiss={() => toasts.dismiss(toast.id)} />
+			{/each}
+		</ol>
+	</div>
+	<div role="alert">
+		<ol class="flex flex-col gap-3">
+			{#each assertive as toast (toast.id)}
+				<ToastItem {toast} {dismissLabel} ondismiss={() => toasts.dismiss(toast.id)} />
+			{/each}
+		</ol>
+	</div>
 </section>

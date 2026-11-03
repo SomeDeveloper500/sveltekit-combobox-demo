@@ -57,8 +57,11 @@ export async function startSession(cookies: Cookies, userId: string): Promise<vo
 }
 
 export function endSession(cookies: Cookies): void {
-	cookies.delete(SESSION_COOKIE, { path: '/' });
-	cookies.delete(SIGNED_IN_HINT_COOKIE, { path: '/' });
+	// The same attributes the cookies were set with. A browser ignores an attempt to clear a
+	// `__Host-` cookie that does not say `Secure`, and SvelteKit's own default for `secure` is off
+	// on plain-http localhost, which is where a production build is tried out.
+	cookies.delete(SESSION_COOKIE, { path: '/', secure: !dev });
+	cookies.delete(SIGNED_IN_HINT_COOKIE, { path: '/', secure: !dev });
 }
 
 /**
