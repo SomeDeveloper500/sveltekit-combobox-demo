@@ -3,7 +3,7 @@
 	import { getI18n } from '#lib/i18n/context.js';
 	import { localizePath } from '#lib/i18n/locale.js';
 	import type { SessionUser } from '#lib/schemas/user.js';
-	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 
 	/**
 	 * Sign in, or the signed-in user's links. Pages rendered per request know the user. Prerendered
@@ -14,8 +14,11 @@
 
 	const i18n = getI18n();
 
+	// The header outlives client-side navigations, so the hint is read again on each one: signing in
+	// or out happens after it first mounted. Effects do not run on the server.
 	let hinted = $state(false);
-	onMount(() => {
+	$effect(() => {
+		void page.url;
 		hinted = hasSignedInHint(document.cookie);
 	});
 

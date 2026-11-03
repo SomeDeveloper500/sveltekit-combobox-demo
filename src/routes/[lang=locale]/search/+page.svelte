@@ -12,7 +12,6 @@
 	import Heading from '#lib/ui/Heading/Heading.svelte';
 	import Input from '#lib/ui/Input/Input.svelte';
 	import Pagination from '#lib/ui/Pagination/Pagination.svelte';
-	import Select from '#lib/ui/Select/Select.svelte';
 	import Combobox from '#lib/ui/Combobox/Combobox.svelte';
 	import type { PageProps } from './$types';
 
@@ -101,12 +100,19 @@
 			}
 			{...labels}
 		/>
-		<Select
+		<!-- A sort order is always set: clearing the field falls back to the default. -->
+		<Combobox
 			name="sort"
 			label={i18n.t('search.field.sort')}
 			options={sortOptions}
-			bind:value={sort}
-			onchange={(event) => go({ sort: event.currentTarget.value as PostSort })}
+			bind:value={
+				() => sort,
+				(next) => {
+					sort = next || 'newest';
+					void go({ sort });
+				}
+			}
+			{...labels}
 		/>
 		<div class="flex gap-2 sm:col-span-4">
 			<Button type="submit">{i18n.t('search.submit')}</Button>

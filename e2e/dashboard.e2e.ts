@@ -20,6 +20,45 @@ async function putBack(page: Page, action: string) {
 
 const total = (page: Page): Locator => page.getByRole('status').filter({ hasText: 'campaigns' });
 
+test.describe('the header on a prerendered page', () => {
+	test('still shows a signed-in visitor their links after a client-side navigation', async ({
+		page
+	}) => {
+		await signIn(page);
+		// Client-side navigations only: the header is never remounted on the way.
+		await page.getByRole('link', { name: 'Blog' }).first().click();
+		await expect(page).toHaveURL(/\/en\/blog/);
+		await page.locator('main a[href^="/en/blog/"]').first().click();
+		await expect(page).toHaveURL(/\/en\/blog\/[^/?]+$/);
+
+		const header = page.getByRole('group', { name: 'Account' });
+		await expect(header.getByRole('link', { name: 'Dashboard' })).toBeVisible();
+		await expect(header.getByRole('button', { name: 'Sign out' })).toBeVisible();
+	});
+
+	test('sends a signed-in visitor who follows a stale sign-in link on to the dashboard', async ({
+		page
+	}) => {
+		await signIn(page);
+		await page.goto('/en/blog');
+		await page.locator('main a[href^="/en/blog/"]').first().click();
+		await expect(page).toHaveURL(/\/en\/blog\/[^/?]+$/);
+
+		// A link that was rendered before the visitor signed in, followed without a reload.
+		await page.evaluate(() => {
+			const link = document.createElement('a');
+			link.href = '/en/login';
+			link.id = 'stale-sign-in';
+			link.textContent = 'stale';
+			document.body.append(link);
+		});
+		await page.locator('#stale-sign-in').click();
+
+		await expect(page).toHaveURL(/\/en\/dashboard/);
+		await expect(page.getByRole('heading', { level: 1 })).toHaveText('Dashboard');
+	});
+});
+
 test.describe('signing in and out', () => {
 	test('signs in, reaches the campaigns, and signs out', async ({ page }) => {
 		await signIn(page);
@@ -118,13 +157,17 @@ test.describe('a keyboard user sorting and filtering', () => {
 		await expect(page.getByRole('table')).toBeVisible();
 	});
 
-	test('keeps their place in the filter after choosing a status', async ({ page }) => {
-		const status = page.getByLabel('Status', { exact: true });
-		await status.focus();
-		await status.selectOption('active');
+	test('filters only when Apply filters is pressed, and keeps their place', async ({ page }) => {
+		const status = page.getByRole('combobox', { name: 'Status', exact: true });
+		await status.click();
+		await page.getByRole('option', { name: 'Active' }).click();
+		await expect(status).toHaveValue('Active');
+		await expect(page).not.toHaveURL(/status=/);
 
+		const apply = page.getByRole('button', { name: 'Apply filters' });
+		await apply.click();
 		await expect(page).toHaveURL(/status=active/);
-		await expect(status).toBeFocused();
+		await expect(apply).toBeFocused();
 	});
 });
 

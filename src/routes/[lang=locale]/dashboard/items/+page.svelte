@@ -25,7 +25,6 @@
 	import Heading from '#lib/ui/Heading/Heading.svelte';
 	import Input from '#lib/ui/Input/Input.svelte';
 	import Pagination from '#lib/ui/Pagination/Pagination.svelte';
-	import Select from '#lib/ui/Select/Select.svelte';
 	import type { PageData, PageProps } from './$types';
 	import { ITEMS_LIST } from './keys';
 
@@ -41,16 +40,12 @@
 	let owner = $derived(query.owner);
 
 	const labels = $derived(comboboxLabels(i18n.t));
-	// "Any" is a real option, not a placeholder: a placeholder is hidden once something is picked,
-	// and the filter could then never be cleared from the select.
-	const statusOptions = $derived([
-		{ value: '' as ItemStatus | '', label: i18n.t('dashboard.items.any.status') },
-		...ITEM_STATUSES.map((value) => ({ value, label: i18n.t(`item.status.${value}`) }))
-	]);
-	const channelOptions = $derived([
-		{ value: '' as ItemChannel | '', label: i18n.t('dashboard.items.any.channel') },
-		...ITEM_CHANNELS.map((value) => ({ value, label: i18n.t(`item.channel.${value}`) }))
-	]);
+	const statusOptions = $derived(
+		ITEM_STATUSES.map((value) => ({ value, label: i18n.t(`item.status.${value}`) }))
+	);
+	const channelOptions = $derived(
+		ITEM_CHANNELS.map((value) => ({ value, label: i18n.t(`item.channel.${value}`) }))
+	);
 	const ownerOptions = $derived(
 		data.owners.ok ? data.owners.value.map((o) => ({ value: o.id, label: o.name })) : []
 	);
@@ -216,22 +211,24 @@
 			bind:value={q}
 			class="sm:col-span-2 lg:col-span-4"
 		/>
-		<Select
+		<!-- The three filters are the same control. Nothing is applied until the form is submitted. -->
+		<Combobox
 			name="status"
 			label={i18n.t('dashboard.items.field.status')}
+			placeholder={i18n.t('dashboard.items.any.status')}
 			options={statusOptions}
 			bind:value={status}
-			onchange={(event) => go({ status: event.currentTarget.value as ItemStatus | '' })}
+			{...labels}
 		/>
-		<Select
+		<Combobox
 			name="channel"
 			label={i18n.t('dashboard.items.field.channel')}
+			placeholder={i18n.t('dashboard.items.any.channel')}
 			options={channelOptions}
 			bind:value={channel}
-			onchange={(event) => go({ channel: event.currentTarget.value as ItemChannel | '' })}
+			{...labels}
 		/>
-		<!-- Picking or clearing changes the URL; the hidden input keeps the no-JavaScript form working.
-			If the owners could not be loaded the filter is off, but an owner already in the URL is kept. -->
+		<!-- The hidden input carries the choice in the form submit. If the owners could not be loaded the filter is off, but an owner already in the URL is kept. -->
 		<Combobox
 			name={data.owners.ok ? 'owner' : undefined}
 			label={i18n.t('dashboard.items.field.owner')}
@@ -239,13 +236,7 @@
 			options={ownerOptions}
 			disabled={!data.owners.ok}
 			hint={data.owners.ok ? undefined : i18n.t('dashboard.items.owners.failed')}
-			bind:value={
-				() => owner,
-				(next) => {
-					owner = next;
-					void go({ owner: next });
-				}
-			}
+			bind:value={owner}
 			{...labels}
 		/>
 		{#if !data.owners.ok && query.owner}

@@ -129,6 +129,6 @@ export type ItemRepository = ReturnType<typeof createItemRepository>;
 
 /**
  * The app's repository. It holds edits in memory for the life of the server process, which is why
- * the dashboard has to run on a long-lived Node server (see ADR on runtimes).
+ * the dashboard has to run on a long-lived Node server (see "Rendering and runtimes" in the README).
  */
 export const itemRepository = createItemRepository(itemsJson);

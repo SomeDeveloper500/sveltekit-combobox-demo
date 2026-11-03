@@ -6,7 +6,7 @@ import { postRepository } from '#lib/server/data/posts.js';
 import { error } from '@sveltejs/kit';
 import type { EntryGenerator, RequestHandler } from './$types';
 
-/** One image per post and language, drawn while the site is built. See ADR 0004. */
+/** One image per post and language, drawn while the site is built. Pre-rendered rather than generated on request: nothing native runs in the deployed server. */
 export const prerender = true;
 
 export const entries: EntryGenerator = () =>

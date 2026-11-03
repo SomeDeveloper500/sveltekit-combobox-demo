@@ -2,7 +2,7 @@
 
 A production-shaped SvelteKit slice: a public marketing surface (landing, blog, search) in English and German, and an authenticated dashboard with a server-driven data table and inline editing.
 
-**Live site:** _add the Netlify URL here after the first deploy_
+**Live site:** <https://sveltekit-combobox-demo.netlify.app/>
 
 **Demo accounts** (password `demo1234` for all): `admin@demo.test` and `editor@demo.test` may change a campaign's status; `viewer@demo.test` is read-only.
 
@@ -74,27 +74,42 @@ CI (`.github/workflows/ci.yml`) runs lint, typecheck, unit, build, Playwright, L
 - **The URL is the state** of every list. A list URL has one spelling; anything else redirects to it.
 - **General-purpose code does not import the domain:** `src/lib/ui`, `schemas`-level helpers, `api`, `query` and `rum` know nothing about posts or campaigns.
 - **Auth:** a signed session cookie (HMAC on Web Crypto, so it runs on Node and on the edge), the guard lives in `handle`, scripts get `401`, browsers get a redirect.
-- **Decisions are written down** in [`docs/adr`](docs/adr): design tokens and state (0001), data contract (0002), rendering strategy per route (0003), OG images (0004), where each route runs and why (0005), RUM and error reporting (0006).
+
+## Rendering and runtimes
+
+| Route                                                  | Rendering                                                             | Runtime       | Why                                                                                                                                                                                     |
+| ------------------------------------------------------ | --------------------------------------------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/en`, `/de`, `/{lang}/blog/{slug}` (and its `og.png`) | SSG (prerendered, 40 posts)                                           | Static files  | Content changes only with a deploy; nothing to cold-start, served from the CDN. OG images use native, heavy libraries, so they are drawn at build time.                                 |
+| `/{lang}/blog?page=n`                                  | SSR, `s-maxage=300`                                                   | Node function | The query makes the URL set open-ended, so it cannot be prerendered; CDN caching gives most of the benefit.                                                                             |
+| `/{lang}/search?q&tag&sort&page`                       | SSR, `s-maxage=60`, `noindex`                                         | Node function | Results are in the HTML (works without JavaScript, shareable); our own result pages should not compete with the posts.                                                                  |
+| `/login`, `/dashboard/*`                               | SSR, `private, no-store`; the table is streamed on client navigations | Node function | Per-user data behind a session cookie and an in-memory repository. A document request waits for the data; a client navigation shows the filters at once and the table after a skeleton. |
+| `POST /api/vitals`                                     | Edge function (Deno)                                                  | **Edge**      | Stateless: no cookie, no data, one Zod check, answers `204`. Every page of every visitor sends it, so the nearest location replies at once.                                             |
+
+- **Blog pagination is numbered pages** (`?page=n`), not infinite scroll or a cursor: every page has its own URL, so it can be indexed, opened in a new tab and reached with the back button, and the data is small and static.
+- **Canonical list URLs.** A list URL has one spelling (defaults dropped, schema key order, a page past the end clamped); any other spelling answers `308`. This keeps caches and search ranking from splitting.
+- **Hosting:** Netlify, because `@sveltejs/adapter-vercel` 7 has no edge runtime and the brief asks for one edge and one Node route. Prerendered pages skip the `handle` hook, so `netlify.toml` sets the same security headers for them.
+- **RUM:** `web-vitals` batches (sampled once per page load, `RUM_SAMPLE_RATE`) and client errors go to one endpoint, validated with Zod; it only logs, and the forwarding seam is `receiveBeacon`.
 
 ## Deployment
 
-The app is deployed to Netlify. The server side runs as Node functions (rendering, sessions, the dashboard); `POST /api/vitals` runs as an edge function, with the reasons in [ADR 0005](docs/adr/0005-runtimes-and-hosting.md). To deploy your own copy:
+The app is deployed to Netlify. The server side runs as Node functions (rendering, sessions, the dashboard); `POST /api/vitals` runs as an edge function, with the reasons in the section above. To deploy your own copy:
 
 1. Create a Netlify site from the repository (the build settings come from `netlify.toml`).
-2. Set `SESSION_SECRET`, `SITE_URL` and, if you like, `RUM_SAMPLE_RATE` in the site's environment variables.
+2. Set `SESSION_SECRET`, `SITE_URL` and, if you like, `RUM_SAMPLE_RATE` in the site's environment variables, before the first deploy. Give `SESSION_SECRET` the Functions scope (or all scopes): the server reads it when it runs, and without it the functions refuse to start. Generate it with `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`.
 3. Deploy. The beacon's events appear in the function logs.
+
+Changing a variable later needs a new deploy (_Clear cache and deploy site_): functions keep the environment they were built with, and `SITE_URL` is read at build time. Set `SITE_URL` to the site's final address, so choose the site name first.
 
 Any host that runs `node build` works too (`@sveltejs/adapter-node` is used outside Netlify); then put compression and a rate limit in front, as the notes below say.
 
 ## Trade-offs and known limits
 
-- **Data is in memory.** Campaign edits live in the memory of the server instance that took them; a cold start or another instance shows the seeded data again. Fine for mock data, the repository sits behind one interface so a database can replace it (ADR 0002, 0005).
+- **Data is in memory.** Campaign edits live in the memory of the server instance that took them; a cold start or another instance shows the seeded data again. Fine for mock data, the repository sits behind one interface so a database can replace it (see Rendering and runtimes).
 - **No rate limit** on login or the beacon (instances share no memory to count in); a platform-level limit is the right place.
 - **No Content-Security-Policy yet.** It needs nonces for the inline theme script and a decision about inline styles; the other security headers are set (including for prerendered pages).
 - **Sessions are stateless cookies**, so signing out ends the browser's session but does not revoke a copied cookie before it expires (seven days).
 - **Lab INP is not measured** (it needs a person); Total Blocking Time stands in for it and the beacon reports the real value.
 - **The visual snapshot is Windows-only** (see Tests).
+- **`npm audit` reports two moderate findings** (`fflate` through `satori`, an infinite loop on a malformed ZIP64 archive). `satori` runs only at build time to draw the OG images and never sees untrusted input; the fix is a breaking `satori` upgrade, left for later.
 
 ## Time spent
-
-_To fill in by the author before sending: total hours, and roughly how they split._
