@@ -1,4 +1,4 @@
-import { LOCALES } from '#lib/schemas/common.js';
+import { LOCALES } from '#lib/schemas/locales.js';
 import type { EntryGenerator } from './$types';
 
 /** The home page has no per-request data, so each language is rendered once, at build time. */

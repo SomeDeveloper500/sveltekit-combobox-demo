@@ -1,15 +1,13 @@
 import { z } from 'zod';
 
-// The supported UI locales: the single list everything else derives from, the route matcher in
-// `src/params` included. This file is loaded by Node itself at build time (see that file), so it
-// imports only `zod` and uses erasable TypeScript only.
-export const LOCALES = ['en', 'de'] as const;
-export const localeSchema = z.enum(LOCALES);
-export type Locale = z.infer<typeof localeSchema>;
-export const DEFAULT_LOCALE: Locale = 'en';
+import { LOCALES } from './locales.ts';
 
-export const isLocale = (value: string | undefined): value is Locale =>
-	localeSchema.safeParse(value).success;
+// The list of locales lives in `locales.ts`, free of Zod, so the pages that only need the list do
+// not download the validation library. This file is loaded by Node itself at build time (see
+// `src/params`), so it imports only `zod` and `locales.ts`, and uses erasable TypeScript only.
+export { DEFAULT_LOCALE, isLocale, LOCALES, type Locale } from './locales.ts';
+
+export const localeSchema = z.enum(LOCALES);
 
 export const hexColorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'expected a #rrggbb color');
 

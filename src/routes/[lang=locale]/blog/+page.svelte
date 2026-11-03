@@ -4,7 +4,7 @@
 	import Seo from '#lib/components/Seo/Seo.svelte';
 	import { getI18n } from '#lib/i18n/context.js';
 	import { localizePath } from '#lib/i18n/locale.js';
-	import { blogQueryCodec } from '#lib/query/codecs.js';
+	import { blogQueryEncoder } from '#lib/query/encoders.js';
 	import { siteOrigin } from '#lib/site.js';
 	import Container from '#lib/ui/Container/Container.svelte';
 	import Heading from '#lib/ui/Heading/Heading.svelte';
@@ -18,7 +18,7 @@
 
 	/** The query that identifies this page: empty for the first one. */
 	const search = $derived(
-		blogQueryCodec.withQuery({ page: 1 }, { page: result.page }).replace(/^\?$/, '')
+		blogQueryEncoder.withQuery({ page: 1 }, { page: result.page }).replace(/^\?$/, '')
 	);
 	const title = $derived(
 		result.page > 1
@@ -26,9 +26,9 @@
 			: i18n.t('blog.title')
 	);
 	const pageHref = (page: number) =>
-		`${current.url.pathname}${blogQueryCodec.withQuery({ page: 1 }, { page }).replace(/^\?$/, '')}`;
+		`${current.url.pathname}${blogQueryEncoder.withQuery({ page: 1 }, { page }).replace(/^\?$/, '')}`;
 	const absolute = (page: number) =>
-		`${siteOrigin}${localizePath(i18n.lang, '/blog')}${blogQueryCodec.withQuery({ page: 1 }, { page }).replace(/^\?$/, '')}`;
+		`${siteOrigin}${localizePath(i18n.lang, '/blog')}${blogQueryEncoder.withQuery({ page: 1 }, { page }).replace(/^\?$/, '')}`;
 </script>
 
 <Seo {title} description={i18n.t('blog.meta.description')} {search} />

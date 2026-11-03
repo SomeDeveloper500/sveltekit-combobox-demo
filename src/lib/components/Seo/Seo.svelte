@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { getI18n } from '#lib/i18n/context.js';
 	import { localizePath, splitLocale } from '#lib/i18n/locale.js';
-	import { LOCALES, DEFAULT_LOCALE } from '#lib/schemas/common.js';
+	import { LOCALES, DEFAULT_LOCALE } from '#lib/schemas/locales.js';
 	import { buildSeo } from '#lib/seo/seo.js';
 	import { siteOrigin } from '#lib/site.js';
 

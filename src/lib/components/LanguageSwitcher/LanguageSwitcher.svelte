@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { switchLocaleUrl, type PageUrl } from '#lib/i18n/locale.js';
 	import { getI18n } from '#lib/i18n/context.js';
-	import { LOCALES } from '#lib/schemas/common.js';
+	import { LOCALES } from '#lib/schemas/locales.js';
 	import { cx } from '#lib/ui/shared/cx.js';
 
 	/** The URL of the page being shown: each link points at the same page in another language. */

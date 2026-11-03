@@ -1,0 +1,23 @@
+# Netlify runs `npm run build`; the SvelteKit adapter turns the server side into Node functions
+# (rendering, sessions, the dashboard) and `netlify/edge-functions` adds the one edge route.
+# Environment variables to set in the site settings: SESSION_SECRET (required, a long random
+# string), SITE_URL (the site's address, no trailing slash), RUM_SAMPLE_RATE (0 to 1, default 0.1).
+[build]
+  command = "npm run build"
+  publish = "build"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Prerendered pages (the home page, the posts) are served as files and never reach the app's
+# `handle` hook, so they would leave without the security headers every other response carries.
+# These are the same headers as `src/lib/server/security.ts`; keep the two in step.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+    Cross-Origin-Opener-Policy = "same-origin"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"

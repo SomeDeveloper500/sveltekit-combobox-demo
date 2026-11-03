@@ -1,7 +1,7 @@
 # ADR 0003: Rendering strategy per route
 
-- Status: draft (final version with the hosting decision, see "Open")
-- Date: 2026-11-02
+- Status: accepted
+- Date: 2026-11-02, final 2026-11-03
 
 ## Context
 
@@ -12,14 +12,15 @@ for the public pages, and the pages that depend on the URL query must stay share
 
 ## Decision
 
-| Route                            | Strategy                                                              | Why                                                                                                                                                                                                                                                |
-| -------------------------------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/en`, `/de` (home)              | SSG (`prerender`, `entries` from the locale list)                     | No per-request data. Built once, served as a file.                                                                                                                                                                                                 |
-| `/{lang}/blog/{slug}`            | SSG (`prerender`, `entries` = every slug in every locale, 40 pages)   | The post is static content and the pages most worth indexing, so they should be the fastest and cheapest to serve.                                                                                                                                 |
-| `/{lang}/blog?page=n`            | SSR with `s-maxage=300, stale-while-revalidate=3600`                  | The query makes the set of URLs open-ended, so it cannot be prerendered. The CDN cache gives most of the benefit of static pages and a redeploy shows up within minutes. This is ISR-like behaviour on a CDN, not an ISR feature of the framework. |
-| `/{lang}/search?q&tag&sort&page` | SSR with `s-maxage=60, stale-while-revalidate=600`, `noindex, follow` | Open-ended query space. Rendered on the server so results are in the HTML (works without JavaScript, shareable); a short cache absorbs repeated queries. Not indexed: our own result pages should not compete with the posts.                      |
-| `/login`, `/dashboard/*`         | SSR, `private, no-store`, no caching                                  | Per-user data behind a session. (Later stages.)                                                                                                                                                                                                    |
-| Error pages, `[...rest]`         | SSR                                                                   | Rendered on demand, never cached as success.                                                                                                                                                                                                       |
+| Route                            | Strategy                                                                  | Why                                                                                                                                                                                                                                                  |
+| -------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/en`, `/de` (home)              | SSG (`prerender`, `entries` from the locale list)                         | No per-request data. Built once, served as a file.                                                                                                                                                                                                   |
+| `/{lang}/blog/{slug}`            | SSG (`prerender`, `entries` = every slug in every locale, 40 pages)       | The post is static content and the pages most worth indexing, so they should be the fastest and cheapest to serve.                                                                                                                                   |
+| `/{lang}/blog?page=n`            | SSR with `s-maxage=300, stale-while-revalidate=3600`                      | The query makes the set of URLs open-ended, so it cannot be prerendered. The CDN cache gives most of the benefit of static pages and a redeploy shows up within minutes. This is ISR-like behaviour on a CDN, not an ISR feature of the framework.   |
+| `/{lang}/search?q&tag&sort&page` | SSR with `s-maxage=60, stale-while-revalidate=600`, `noindex, follow`     | Open-ended query space. Rendered on the server so results are in the HTML (works without JavaScript, shareable); a short cache absorbs repeated queries. Not indexed: our own result pages should not compete with the posts.                        |
+| `/login`                         | SSR, `private, no-store`                                                  | The page depends on the visitor (it sends a signed-in one on), so no shared cache may hold it.                                                                                                                                                       |
+| `/dashboard/*`                   | SSR, `private, no-store`; the list is streamed to client-side navigations | Per-user data behind a session. A client-side navigation gets the heading and filters at once and the table after a skeleton; a document request (no JavaScript, a crawler) waits for the data, because a streamed promise is delivered by a script. |
+| Error pages, `[...rest]`         | SSR                                                                       | Rendered on demand, never cached as success.                                                                                                                                                                                                         |
 
 ### How pages are made canonical
 
@@ -47,12 +48,13 @@ needs client-only rendering (CSR).
 - The list pages depend on a CDN in front of the server for their cache headers to matter.
 - **Prerendered pages are served as files and skip the `handle` hook, so on `adapter-node` they
   carry no security headers.** The hosting configuration has to set the same headers for them
-  (see "Open").
+  (see below).
 
-## Open
+## Resolved with the hosting decision
 
-- Hosting is not final. The edge runtime requirement (at least one edge route, one Node route)
-  and the headers for prerendered pages are decided together with the host; this ADR gets its
-  final version then.
-- A streaming route (a deferred slow query behind a skeleton) will be added with the dashboard,
-  where there is real latency to hide; nothing on the public pages justifies it.
+- **Headers for prerendered pages** are set by the host (`netlify.toml`, the same list as
+  `src/lib/server/security.ts`), since those pages skip `handle`.
+- **Streaming** is on the dashboard list, where a real query's latency is worth hiding; ADR 0005
+  says where each route runs.
+- Server-rendered HTML is compressed by the app itself (`src/lib/server/compress.ts`) wherever
+  nothing in front of it does, which is the plain Node server.

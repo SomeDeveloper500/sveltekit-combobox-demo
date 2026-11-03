@@ -3,7 +3,7 @@
 	import { classifyFailure } from '#lib/api/failure.js';
 	import Seo from '#lib/components/Seo/Seo.svelte';
 	import { getI18n } from '#lib/i18n/context.js';
-	import { validateLogin, type LoginFieldErrors } from '#lib/schemas/login.js';
+	import type { LoginFieldErrors } from '#lib/schemas/login.js';
 	import Button from '#lib/ui/Button/Button.svelte';
 	import Card from '#lib/ui/Card/Card.svelte';
 	import Container from '#lib/ui/Container/Container.svelte';
@@ -48,10 +48,16 @@
 					: undefined
 	);
 
-	const submit: SubmitFunction = ({ cancel }) => {
+	// The check is the Zod schema the server runs, loaded when it is needed instead of with the
+	// page: most visitors never sign in, and the library is a fifth of the page's JavaScript. It is
+	// fetched as soon as the form is touched, so it is ready by the time of the submit.
+	const loadValidation = () => import('#lib/schemas/login.js');
+
+	const submit: SubmitFunction = async ({ cancel }) => {
 		failure = null;
 
 		// The same check the server runs, so mistakes show at once and without a round trip.
+		const { validateLogin } = await loadValidation();
 		const checked = validateLogin({ email, password });
 		if (!checked.ok) {
 			cancel();
@@ -89,7 +95,13 @@
 		</div>
 
 		<!-- Without JavaScript this is an ordinary POST to the same URL (`next` stays in the query). -->
-		<form method="post" novalidate use:enhance={submit} class="space-y-4">
+		<form
+			method="post"
+			novalidate
+			use:enhance={submit}
+			onfocusin={() => void loadValidation()}
+			class="space-y-4"
+		>
 			{#if alert}
 				<p
 					role="alert"

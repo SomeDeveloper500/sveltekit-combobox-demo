@@ -1,4 +1,6 @@
-import { rumPayloadSchema, type RumEvent } from '#lib/rum/schema.js';
+// Relative, with the extension: this file also runs in the edge function (Deno), which knows
+// neither the `#lib` alias nor extensionless imports.
+import { rumPayloadSchema, type RumEvent } from '../rum/schema.ts';
 
 /** Far more than a batch of 20 events needs; anything bigger is not ours. */
 export const MAX_BODY_BYTES = 32 * 1024;

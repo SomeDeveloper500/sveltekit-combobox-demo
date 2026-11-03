@@ -1,20 +1,13 @@
 import { z } from 'zod';
 import { slugSchema } from './common';
 
-export const ITEM_STATUSES = [
-	'draft',
-	'scheduled',
-	'active',
-	'paused',
-	'completed',
-	'archived'
-] as const;
-export const ITEM_CHANNELS = ['email', 'sms', 'web', 'social', 'push'] as const;
+import { ITEM_CHANNELS, ITEM_STATUSES } from './lists';
+
+// The lists live in `lists.ts`, free of Zod; pages that only show the options import them from there.
+export { ITEM_CHANNELS, ITEM_STATUSES, type ItemChannel, type ItemStatus } from './lists';
 
 export const itemStatusSchema = z.enum(ITEM_STATUSES);
 export const itemChannelSchema = z.enum(ITEM_CHANNELS);
-export type ItemStatus = z.infer<typeof itemStatusSchema>;
-export type ItemChannel = z.infer<typeof itemChannelSchema>;
 
 /** A dashboard row (a campaign). The source of truth for the table, the edit form and the API. */
 export const itemSchema = z

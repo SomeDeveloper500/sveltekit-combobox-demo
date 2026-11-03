@@ -1,5 +1,5 @@
 import { classifyFailure, type FailureKind } from '#lib/api/failure.js';
-import { ITEM_STATUSES, type ItemStatus } from '#lib/schemas/item.js';
+import { ITEM_STATUSES, type ItemStatus } from '#lib/schemas/lists.js';
 
 export type ChangeStatusResult =
 	{ ok: true; status: ItemStatus; changed: boolean } | { ok: false; kind: FailureKind };

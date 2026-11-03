@@ -1,5 +1,25 @@
 import { z } from 'zod';
-import { ITEM_CHANNELS, ITEM_STATUSES } from './item';
+import {
+	ITEM_CHANNELS,
+	ITEM_SORT_KEYS,
+	ITEM_STATUSES,
+	PER_PAGE_OPTIONS,
+	POST_SORTS,
+	SORT_DIRECTIONS,
+	type PerPage
+} from './lists';
+
+// The lists live in `lists.ts`, free of Zod; pages that only show the options import them from there.
+export {
+	ITEM_SORT_KEYS,
+	PER_PAGE_OPTIONS,
+	POST_SORTS,
+	SORT_DIRECTIONS,
+	type ItemSortKey,
+	type PerPage,
+	type PostSort,
+	type SortDirection
+} from './lists';
 
 /**
  * Query contracts parsed from the URL. A URL is user input and may be stale or hand-edited, so a
@@ -10,8 +30,6 @@ const page = z.coerce.number().int().min(1).catch(1);
 const text = (max: number) => z.string().trim().max(max).catch('');
 
 /** Public blog list and search: `/blog?page=2`, `/search?q=…&tag=…&sort=…`. */
-export const POST_SORTS = ['newest', 'oldest', 'title'] as const;
-export type PostSort = (typeof POST_SORTS)[number];
 
 export const postQuerySchema = z.object({
 	q: text(100),
@@ -22,24 +40,6 @@ export const postQuerySchema = z.object({
 export type PostQuery = z.infer<typeof postQuerySchema>;
 
 /** Dashboard table: `/dashboard/items?page=…&sort=…&dir=…&status=…`. */
-export const ITEM_SORT_KEYS = [
-	'name',
-	'status',
-	'channel',
-	'owner',
-	'budget',
-	'spent',
-	'ctr',
-	'updatedAt'
-] as const;
-export type ItemSortKey = (typeof ITEM_SORT_KEYS)[number];
-
-export const PER_PAGE_OPTIONS = [10, 25, 50] as const;
-export type PerPage = (typeof PER_PAGE_OPTIONS)[number];
-
-export const SORT_DIRECTIONS = ['asc', 'desc'] as const;
-export type SortDirection = (typeof SORT_DIRECTIONS)[number];
-
 export const itemsQuerySchema = z.object({
 	page,
 	perPage: z.coerce

@@ -7,6 +7,10 @@ import { expect, test } from '@playwright/test';
  * the one made where the project is developed, and `maxDiffPixelRatio` allows for that noise
  * without letting a changed layout through.
  */
+// The baseline was made on Windows. Another operating system draws the same page with other fonts,
+// so a CI run on Linux would fail on the font, not on the page. Run it where the baseline lives.
+test.skip(Boolean(process.env.CI), 'The baseline image is made on Windows; see the note above.');
+
 test.use({
 	viewport: { width: 1280, height: 720 },
 	locale: 'en-US',

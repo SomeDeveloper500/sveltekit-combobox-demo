@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE, type Locale } from '#lib/schemas/common.js';
+import { DEFAULT_LOCALE, type Locale } from '#lib/schemas/locales.js';
 import { dictionaries, type MessageKey } from './messages';
 
 export type Params = Record<string, string | number>;

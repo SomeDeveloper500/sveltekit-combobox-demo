@@ -55,6 +55,31 @@ test.describe('signing in and out', () => {
 	});
 });
 
+test.describe('the sign-in form checks before it sends', () => {
+	test('names the empty fields without a round trip, using the lazily loaded check', async ({
+		page
+	}) => {
+		let posted = false;
+		page.on('request', (request) => {
+			if (request.method() === 'POST') posted = true;
+		});
+		await page.goto('/en/login');
+		await page.getByRole('button', { name: 'Sign in' }).click();
+
+		await expect(page.getByText('This field is required.').first()).toBeVisible();
+		await expect(page.getByLabel('Email')).toBeFocused();
+		expect(posted).toBe(false);
+	});
+
+	test('rejects an email that is not one, in the browser', async ({ page }) => {
+		await page.goto('/en/login');
+		await page.getByLabel('Email').fill('not-an-email');
+		await page.getByLabel('Password').fill('x');
+		await page.getByRole('button', { name: 'Sign in' }).click();
+		await expect(page.getByText('Enter a valid email address.')).toBeVisible();
+	});
+});
+
 test.describe('a viewer', () => {
 	test('sees the statuses but cannot change them', async ({ page }) => {
 		await signIn(page, DEMO.viewer);

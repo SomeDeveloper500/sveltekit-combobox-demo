@@ -7,15 +7,16 @@
 	import { canEditItems } from '#lib/domain/permissions.js';
 	import { getI18n } from '#lib/i18n/context.js';
 	import { comboboxLabels } from '#lib/i18n/labels.js';
-	import { itemsQueryCodec } from '#lib/query/codecs.js';
+	import { itemsQueryEncoder } from '#lib/query/encoders.js';
+	import type { Item } from '#lib/schemas/item.js';
 	import {
 		ITEM_CHANNELS,
 		ITEM_STATUSES,
-		type Item,
 		type ItemChannel,
+		type ItemSortKey,
 		type ItemStatus
-	} from '#lib/schemas/item.js';
-	import type { ItemSortKey, ItemsQuery } from '#lib/schemas/query.js';
+	} from '#lib/schemas/lists.js';
+	import type { ItemsQuery } from '#lib/schemas/query.js';
 	import Button from '#lib/ui/Button/Button.svelte';
 	import Container from '#lib/ui/Container/Container.svelte';
 	import Combobox from '#lib/ui/Combobox/Combobox.svelte';
@@ -60,7 +61,7 @@
 
 	/** Same-page navigation to a state; the server redirects anything that is not canonical. */
 	function go(change: Partial<ItemsQuery> = {}) {
-		const search = itemsQueryCodec.withQuery(query, {
+		const search = itemsQueryEncoder.withQuery(query, {
 			q: q.trim(),
 			status,
 			channel,
@@ -77,7 +78,7 @@
 	}
 
 	const href = (change: Partial<ItemsQuery>) =>
-		`${current.url.pathname}${itemsQueryCodec.withQuery(query, change).replace(/^\?$/, '')}`;
+		`${current.url.pathname}${itemsQueryEncoder.withQuery(query, change).replace(/^\?$/, '')}`;
 
 	/** Text columns start A to Z; numbers and dates start with the largest. */
 	const FIRST_ASCENDING: readonly ItemSortKey[] = ['name', 'status', 'channel', 'owner'];
@@ -251,13 +252,13 @@
 			<input type="hidden" name="owner" value={query.owner} />
 		{/if}
 		<!-- Sorting and paging live in links; a form submit must not forget them. -->
-		{#if query.sort !== itemsQueryCodec.defaults.sort}
+		{#if query.sort !== itemsQueryEncoder.defaults.sort}
 			<input type="hidden" name="sort" value={query.sort} />
 		{/if}
-		{#if query.dir !== itemsQueryCodec.defaults.dir}
+		{#if query.dir !== itemsQueryEncoder.defaults.dir}
 			<input type="hidden" name="dir" value={query.dir} />
 		{/if}
-		{#if query.perPage !== itemsQueryCodec.defaults.perPage}
+		{#if query.perPage !== itemsQueryEncoder.defaults.perPage}
 			<input type="hidden" name="perPage" value={query.perPage} />
 		{/if}
 		<div class="flex gap-2 sm:col-span-2 lg:col-span-4">

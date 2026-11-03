@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE, isLocale, type Locale } from '#lib/schemas/common.js';
+import { DEFAULT_LOCALE, isLocale, type Locale } from '#lib/schemas/locales.js';
 
 // tag [;q=weight] [;other-param]*: a `q` that is not a number makes the whole entry invalid.
 const ACCEPT_ENTRY =

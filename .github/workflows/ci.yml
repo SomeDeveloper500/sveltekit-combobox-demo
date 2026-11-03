@@ -1,0 +1,76 @@
+name: CI
+
+# lint -> typecheck -> unit -> build -> Playwright -> Lighthouse -> bundle size.
+# One job, one order: every step after the build works on the same production build, and the
+# first failure stops the rest, so a regression is named by the step that caught it.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # The build and size-limit need Node 22.18 or newer (see `engines` in package.json).
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Chromium for the browser unit tests and the end-to-end tests.
+      - run: npx playwright install --with-deps chromium
+
+      - name: Lint (Prettier, ESLint)
+        run: npm run lint
+
+      - name: Typecheck (svelte-check, tsc)
+        run: |
+          npm run check
+          npm run typecheck
+
+      - name: Unit tests
+        run: npx vitest run
+
+      - name: Build
+        run: npm run build
+
+      # The tests drive the build made above instead of building again.
+      - name: End-to-end tests (Playwright, axe)
+        run: npx playwright test
+        env:
+          E2E_SKIP_BUILD: '1'
+
+      # Lighthouse (mobile profile) fails the job below 0.95 in any category, LCP of 2.0 s, CLS of 0.1.
+      - name: Lighthouse CI
+        run: npm run lighthouse
+
+      # The JavaScript budget per route, gzip: 80 KB public, 100 KB dashboard.
+      - name: Bundle size
+        run: npm run size
+
+      - name: Keep the reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            playwright-report
+            test-results
+            .lighthouseci
+          if-no-files-found: ignore
+          retention-days: 7

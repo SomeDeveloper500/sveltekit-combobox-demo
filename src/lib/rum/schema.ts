@@ -1,13 +1,7 @@
 import { z } from 'zod';
+import { ERROR_SOURCES, MAX_EVENTS, VITAL_NAMES } from './constants.ts';
 
-/** The four metrics the beacon carries. */
-export const VITAL_NAMES = ['LCP', 'INP', 'CLS', 'TTFB'] as const;
-
-/** Where on the page an error was caught. */
-export const ERROR_SOURCES = ['boundary', 'hook', 'window', 'promise'] as const;
-
-/** The most events one beacon may carry. */
-export const MAX_EVENTS = 20;
+export { ERROR_SOURCES, MAX_EVENTS, VITAL_NAMES };
 
 // The path only, never the query: a URL can carry a search term or a token.
 const path = z

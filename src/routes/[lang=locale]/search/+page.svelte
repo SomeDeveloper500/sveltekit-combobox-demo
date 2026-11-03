@@ -5,8 +5,8 @@
 	import Seo from '#lib/components/Seo/Seo.svelte';
 	import { getI18n } from '#lib/i18n/context.js';
 	import { comboboxLabels } from '#lib/i18n/labels.js';
-	import { postQueryCodec } from '#lib/query/codecs.js';
-	import { POST_SORTS, type PostSort } from '#lib/schemas/query.js';
+	import { postQueryEncoder } from '#lib/query/encoders.js';
+	import { POST_SORTS, type PostSort } from '#lib/schemas/lists.js';
 	import Button from '#lib/ui/Button/Button.svelte';
 	import Container from '#lib/ui/Container/Container.svelte';
 	import Heading from '#lib/ui/Heading/Heading.svelte';
@@ -34,12 +34,12 @@
 
 	const filtered = $derived(query.q !== '' || query.tag !== '');
 	const searchString = $derived(
-		postQueryCodec.withQuery(postQueryCodec.defaults, query).replace(/^\?$/, '')
+		postQueryEncoder.withQuery(postQueryEncoder.defaults, query).replace(/^\?$/, '')
 	);
 
 	/** Same-page navigation to a state; the server redirects anything that is not canonical. */
 	function go(change: { q?: string; tag?: string; sort?: PostSort }) {
-		const search = postQueryCodec.withQuery(postQueryCodec.defaults, {
+		const search = postQueryEncoder.withQuery(postQueryEncoder.defaults, {
 			q: q.trim(),
 			tag,
 			sort,
@@ -55,7 +55,7 @@
 	}
 
 	const pageHref = (page: number) =>
-		`${current.url.pathname}${postQueryCodec.withQuery(query, { page }).replace(/^\?$/, '')}`;
+		`${current.url.pathname}${postQueryEncoder.withQuery(query, { page }).replace(/^\?$/, '')}`;
 
 	const summary = $derived(
 		query.q

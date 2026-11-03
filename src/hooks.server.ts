@@ -3,6 +3,7 @@ import { negotiateLocale, splitLocale } from '#lib/i18n/locale.js';
 import { localeRedirect } from '#lib/i18n/redirect.js';
 import { accessDecision, isPrivatePath, markPrivate } from '#lib/server/access.js';
 import { assertSessionConfigured, currentUser } from '#lib/server/auth.js';
+import { compressResponse } from '#lib/server/compress.js';
 import { toAppError } from '#lib/server/errors.js';
 import { applySecurityHeaders } from '#lib/server/security.js';
 import type { Handle, HandleServerError, ServerInit } from '@sveltejs/kit/hooks';
@@ -15,7 +16,8 @@ export const init: ServerInit = () => assertSessionConfigured();
  * unknown path) the browser's preference is used, so even error pages speak the visitor's language.
  * Visitors without a locale on a page that has one are sent there first, and anonymous visitors on
  * a protected page are sent to the login page. Every response, redirects included, leaves with the
- * security headers; pages that depend on the visitor are marked private.
+ * security headers; pages that depend on the visitor are marked private, and rendered pages are
+ * compressed (see `compressResponse`).
  */
 export const handle: Handle = async ({ event, resolve }) => {
 	const acceptLanguage = event.request.headers.get('accept-language');
@@ -62,7 +64,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const response = await resolve(event, {
 		transformPageChunk: ({ html }) => html.replace('%lang%', event.locals.lang)
 	});
-	const secured = applySecurityHeaders(response, event.url);
+	const secured = applySecurityHeaders(compressResponse(event.request, response), event.url);
 	return isPrivatePath(event.url.pathname) ? markPrivate(secured) : secured;
 };
 

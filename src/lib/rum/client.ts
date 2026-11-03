@@ -1,6 +1,6 @@
 import type { Metric } from 'web-vitals';
 import { ErrorBudget, sampled } from './sampling';
-import { MAX_EVENTS, VITAL_NAMES, type ERROR_SOURCES } from './schema';
+import { MAX_EVENTS, VITAL_NAMES, type ERROR_SOURCES } from './constants';
 import type { ErrorEvent, RumEvent, VitalEvent } from './schema';
 
 export type ErrorSource = (typeof ERROR_SOURCES)[number];

@@ -1,11 +1,9 @@
 import type { z } from 'zod';
+import { createQueryEncoder, type QueryEncoderOptions } from './encoder.js';
 
 type Primitive = string | number | boolean;
 
-export type QueryCodecOptions = {
-	/** The paging field, reset to its default when any other field changes. Default: `page`. */
-	pageKey?: string;
-};
+export type QueryCodecOptions = QueryEncoderOptions;
 
 /**
  * A codec between a URL's search params and a typed query object, driven by a Zod schema whose
@@ -19,8 +17,8 @@ export function createQueryCodec<S extends z.ZodType<Record<string, Primitive>>>
 ) {
 	type Query = z.output<S>;
 	const defaults = schema.parse({}) as Query;
-	const keys = Object.keys(defaults) as (keyof Query & string)[];
-	const pageKey = options.pageKey ?? 'page';
+	// Writing URLs is the encoder's half; this adds the half that reads them.
+	const { encode, withQuery } = createQueryEncoder(defaults, options);
 
 	/** URL → typed query. Garbage, unknown keys and stale values fall back; it never throws. */
 	function decode(source: URLSearchParams | string): Query {
@@ -29,34 +27,6 @@ export function createQueryCodec<S extends z.ZodType<Record<string, Primitive>>>
 		const seen = new Set<string>();
 		const entries = [...params].filter(([key]) => !seen.has(key) && !!seen.add(key));
 		return schema.parse(Object.fromEntries(entries)) as Query;
-	}
-
-	/**
-	 * Typed query → canonical params: schema order, defaults omitted, so equal states give equal,
-	 * short URLs.
-	 */
-	function encode(query: Partial<Query>): URLSearchParams {
-		const merged = { ...defaults, ...query };
-		const params = new URLSearchParams();
-		for (const key of keys) {
-			if (merged[key] !== defaults[key]) params.set(key, String(merged[key]));
-		}
-		return params;
-	}
-
-	/**
-	 * The link for a state change, as a relative `?query` (so it keeps the current path). Changing
-	 * anything but the page returns to the first page, so a new filter never lands on a page that
-	 * no longer exists; an explicit `page` in `change` is kept.
-	 */
-	function withQuery(current: Query, change: Partial<Query>): string {
-		const alters = (Object.keys(change) as (keyof Query & string)[]).some(
-			(key) => key !== pageKey && change[key] !== current[key]
-		);
-		const resetsPage = alters && !(pageKey in change) && pageKey in defaults;
-		const next = { ...current, ...change, ...(resetsPage ? { [pageKey]: defaults[pageKey] } : {}) };
-		const search = encode(next).toString();
-		return search ? `?${search}` : '?';
 	}
 
 	/**
