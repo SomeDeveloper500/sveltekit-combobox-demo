@@ -125,5 +125,25 @@ export const extraEn = {
 	'item.channel.push': 'Push',
 	'dashboard.items.error.title': 'We could not load the campaigns',
 	'dashboard.items.error.body': 'The filters still work. Try again in a moment.',
-	'dashboard.items.owners.failed': 'Owners could not be loaded. The other filters still work.'
+	'dashboard.items.owners.failed': 'Owners could not be loaded. The other filters still work.',
+	'dashboard.items.status.change': 'Status of {name}',
+	'dashboard.items.status.error.network': 'Could not reach the server. The status was not changed.',
+	'dashboard.items.status.error.unauthenticated': 'Your session has ended. Sign in again.',
+	'dashboard.items.status.error.forbidden': 'You are not allowed to change this status.',
+	'dashboard.items.status.error.not_found': 'This campaign no longer exists.',
+	'dashboard.items.status.error.conflict':
+		'That move is not allowed from the current status. The status was reset.',
+	'dashboard.items.status.error.validation': 'That status is not valid.',
+	'dashboard.items.status.error.server':
+		'Something went wrong on our side. The status was not changed.',
+	'dashboard.items.status.error.unknown': 'The status could not be changed.',
+	'dashboard.items.status.error.title': 'Status not changed',
+	'dashboard.items.status.changed': '“{name}” is now {status}.',
+	'dashboard.items.status.confirm.title': 'Change status to {status}?',
+	'dashboard.items.status.confirm.body':
+		'“{name}” cannot be made live again after this. This cannot be undone.',
+	'dashboard.items.status.confirm.action': 'Change to {status}',
+	'common.close': 'Close',
+	'common.dismiss': 'Dismiss',
+	'common.notifications': 'Notifications'
 } as const;

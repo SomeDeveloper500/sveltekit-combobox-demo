@@ -1,7 +1,10 @@
 <script lang="ts">
-	import { goto, invalidateAll } from '$app/navigation';
+	import { goto, invalidate } from '$app/navigation';
 	import { page as current } from '$app/state';
+	import { needsRefresh } from '#lib/components/ItemStatusControl/change-status.js';
+	import ItemStatusControl from '#lib/components/ItemStatusControl/ItemStatusControl.svelte';
 	import Seo from '#lib/components/Seo/Seo.svelte';
+	import { canEditItems } from '#lib/domain/permissions.js';
 	import { getI18n } from '#lib/i18n/context.js';
 	import { comboboxLabels } from '#lib/i18n/labels.js';
 	import { itemsQueryCodec } from '#lib/query/codecs.js';
@@ -13,7 +16,6 @@
 		type ItemStatus
 	} from '#lib/schemas/item.js';
 	import type { ItemSortKey, ItemsQuery } from '#lib/schemas/query.js';
-	import Badge from '#lib/ui/Badge/Badge.svelte';
 	import Button from '#lib/ui/Button/Button.svelte';
 	import Container from '#lib/ui/Container/Container.svelte';
 	import Combobox from '#lib/ui/Combobox/Combobox.svelte';
@@ -23,7 +25,8 @@
 	import Input from '#lib/ui/Input/Input.svelte';
 	import Pagination from '#lib/ui/Pagination/Pagination.svelte';
 	import Select from '#lib/ui/Select/Select.svelte';
-	import type { PageProps } from './$types';
+	import type { PageData, PageProps } from './$types';
+	import { ITEMS_LIST } from './keys';
 
 	let { data }: PageProps = $props();
 
@@ -93,14 +96,40 @@
 		return href({ sort: column, dir });
 	}
 
-	const tones: Record<ItemStatus, 'neutral' | 'info' | 'success' | 'warning'> = {
-		draft: 'neutral',
-		scheduled: 'info',
-		active: 'success',
-		paused: 'warning',
-		completed: 'info',
-		archived: 'neutral'
-	};
+	/**
+	 * The list as the server last reported it for this view. A client-side navigation delivers the
+	 * result as a promise; a refresh after a status change is one too, and the table must not turn
+	 * into a skeleton and back for that. So the table shows the last result of the same view while
+	 * the new one is on its way, and a skeleton only when there is none (a different view).
+	 */
+	type Outcome = Awaited<PageData['result']>;
+	const view = $derived(JSON.stringify(data.query));
+	let last = $state<{ view: string; outcome: Outcome } | null>(null);
+	$effect(() => {
+		const wanted = view;
+		const incoming = data.result;
+		if (!(incoming instanceof Promise)) {
+			last = { view: wanted, outcome: incoming };
+			return;
+		}
+		let live = true;
+		void incoming.then((outcome) => {
+			if (live) last = { view: wanted, outcome };
+		});
+		return () => {
+			live = false;
+		};
+	});
+	const outcome = $derived(
+		data.result instanceof Promise ? (last?.view === view ? last.outcome : null) : data.result
+	);
+
+	/** Only the list is reloaded, not the layout, the owners or the session. */
+	const refresh = () => invalidate(ITEMS_LIST);
+
+	const canEdit = $derived(canEditItems(data.user));
+	/** The list as it is now, so a form post without JavaScript comes back to the same view. */
+	const here = $derived(`${current.url.pathname}${current.url.search}`);
 
 	const columns = $derived<Column<Item>[]>([
 		{ key: 'name', header: i18n.t('dashboard.items.column.name'), sortable: true },
@@ -153,7 +182,12 @@
 </script>
 
 {#snippet statusCell(row: Item)}
-	<Badge tone={tones[row.status]}>{i18n.t(`item.status.${row.status}`)}</Badge>
+	<ItemStatusControl
+		item={row}
+		{canEdit}
+		redirectTo={here}
+		onsettled={(result) => needsRefresh(result) && void refresh()}
+	/>
 {/snippet}
 
 <Seo
@@ -237,56 +271,53 @@
 	</form>
 
 	<!-- The result is streamed to client-side navigations: the heading and filters are on screen. -->
-	{#await data.result}
+	{#if outcome === null}
 		<DataTableSkeleton
 			columns={columns.length}
 			rows={query.perPage}
 			label={i18n.t('common.loading')}
 		/>
-	{:then result}
-		{#if !result.ok}
-			<div role="alert" class="space-y-3 rounded-xl border border-danger bg-danger-soft p-6">
-				<p class="font-semibold text-danger">{i18n.t('dashboard.items.error.title')}</p>
-				<p>{i18n.t('dashboard.items.error.body')}</p>
-				<Button variant="secondary" onclick={() => invalidateAll()}>{i18n.t('common.retry')}</Button
-				>
-			</div>
-		{:else}
-			{@const list = result.value}
-			<p role="status" class="text-muted">
-				{i18n.t('dashboard.items.summary', { count: list.total })}
-			</p>
-			<DataTable
-				rows={list.rows}
-				{columns}
-				rowKey={(row) => row.id}
-				caption={i18n.t('dashboard.items.title')}
-				sort={{ key: query.sort, direction: query.dir }}
-				{sortHref}
-				sortLabel={(column) => i18n.t('dashboard.items.sortBy', { column })}
-			>
-				{#snippet empty()}
-					<p>{filtered ? i18n.t('dashboard.items.noMatch') : i18n.t('dashboard.items.empty')}</p>
-					{#if filtered}
-						<Button
-							variant="ghost"
-							class="mt-3"
-							href={href({ q: '', status: '', channel: '', owner: '' })}
-						>
-							{i18n.t('dashboard.items.reset')}
-						</Button>
-					{/if}
-				{/snippet}
-			</DataTable>
-			<Pagination
-				page={list.page}
-				pages={list.pages}
-				href={(page) => href({ page })}
-				label={i18n.t('pagination.label')}
-				previousLabel={i18n.t('pagination.previous')}
-				nextLabel={i18n.t('pagination.next')}
-				pageLabel={(page) => i18n.t('pagination.page', { page })}
-			/>
-		{/if}
-	{/await}
+	{:else if !outcome.ok}
+		<div role="alert" class="space-y-3 rounded-xl border border-danger bg-danger-soft p-6">
+			<p class="font-semibold text-danger">{i18n.t('dashboard.items.error.title')}</p>
+			<p>{i18n.t('dashboard.items.error.body')}</p>
+			<Button variant="secondary" onclick={() => refresh()}>{i18n.t('common.retry')}</Button>
+		</div>
+	{:else}
+		{@const list = outcome.value}
+		<p role="status" class="text-muted">
+			{i18n.t('dashboard.items.summary', { count: list.total })}
+		</p>
+		<DataTable
+			rows={list.rows}
+			{columns}
+			rowKey={(row) => row.id}
+			caption={i18n.t('dashboard.items.title')}
+			sort={{ key: query.sort, direction: query.dir }}
+			{sortHref}
+			sortLabel={(column) => i18n.t('dashboard.items.sortBy', { column })}
+		>
+			{#snippet empty()}
+				<p>{filtered ? i18n.t('dashboard.items.noMatch') : i18n.t('dashboard.items.empty')}</p>
+				{#if filtered}
+					<Button
+						variant="ghost"
+						class="mt-3"
+						href={href({ q: '', status: '', channel: '', owner: '' })}
+					>
+						{i18n.t('dashboard.items.reset')}
+					</Button>
+				{/if}
+			{/snippet}
+		</DataTable>
+		<Pagination
+			page={list.page}
+			pages={list.pages}
+			href={(page) => href({ page })}
+			label={i18n.t('pagination.label')}
+			previousLabel={i18n.t('pagination.previous')}
+			nextLabel={i18n.t('pagination.next')}
+			pageLabel={(page) => i18n.t('pagination.page', { page })}
+		/>
+	{/if}
 </Container>

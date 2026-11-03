@@ -3,10 +3,14 @@ import { itemsQueryCodec } from '#lib/query/codecs.js';
 import { itemRepository } from '#lib/server/data/items.js';
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { ITEMS_LIST } from './keys';
 
 const report = (what: string) => (cause: unknown) => console.error(`[items] ${what} failed`, cause);
 
-export const load: PageServerLoad = async ({ url, isDataRequest }) => {
+export const load: PageServerLoad = async ({ url, isDataRequest, depends }) => {
+	// A status change elsewhere on the page refreshes this load by name, not the whole tree.
+	depends(ITEMS_LIST);
+
 	const query = itemsQueryCodec.decode(url.searchParams);
 
 	// The URL is the state, so it has one spelling: defaults dropped, stray parameters removed.

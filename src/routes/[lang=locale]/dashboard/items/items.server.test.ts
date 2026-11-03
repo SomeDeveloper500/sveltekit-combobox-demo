@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { itemRepository } from '#lib/server/data/items.js';
 import { load } from './+page.server';
+import { ITEMS_LIST } from './keys';
 
 type Event = Parameters<typeof load>[0];
 type Owner = { id: string; name: string };
@@ -17,11 +18,14 @@ type Data = {
 	result: Settled<Result> | Promise<Settled<Result>>;
 };
 
+const depends = vi.fn();
+
 async function run(search: string, isDataRequest = false) {
 	const event = {
 		url: new URL(`https://example.test/en/dashboard/items${search}`),
-		isDataRequest
-	} as Event;
+		isDataRequest,
+		depends
+	} as unknown as Event;
 	try {
 		return { data: (await load(event)) as unknown as Data, redirect: null as string | null };
 	} catch (thrown) {
@@ -39,6 +43,7 @@ async function listing(search: string): Promise<Result> {
 
 beforeEach(() => {
 	vi.restoreAllMocks();
+	depends.mockClear();
 	vi.spyOn(console, 'error').mockImplementation(() => {});
 });
 
@@ -56,6 +61,12 @@ describe('/dashboard/items load', () => {
 		expect(data!.result).not.toBeInstanceOf(Promise);
 		const settled = data!.result as Settled<Result>;
 		expect(settled.ok && settled.value.rows).toHaveLength(10);
+	});
+
+	it('registers the list as a dependency, so a status change can refresh just this load', async () => {
+		await run('');
+		expect(depends).toHaveBeenCalledWith(ITEMS_LIST);
+		expect(ITEMS_LIST).toBe('items:list');
 	});
 
 	it('defaults to the most recently updated first', async () => {

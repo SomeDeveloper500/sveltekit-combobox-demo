@@ -131,5 +131,27 @@ export const extraDe: Record<keyof typeof extraEn, string> = {
 	'dashboard.items.error.body':
 		'Die Filter funktionieren weiterhin. Versuchen Sie es gleich noch einmal.',
 	'dashboard.items.owners.failed':
-		'Die Verantwortlichen konnten nicht geladen werden. Die anderen Filter funktionieren weiterhin.'
+		'Die Verantwortlichen konnten nicht geladen werden. Die anderen Filter funktionieren weiterhin.',
+	'dashboard.items.status.change': 'Status von {name}',
+	'dashboard.items.status.error.network':
+		'Der Server ist nicht erreichbar. Der Status wurde nicht geändert.',
+	'dashboard.items.status.error.unauthenticated':
+		'Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.',
+	'dashboard.items.status.error.forbidden': 'Sie dürfen diesen Status nicht ändern.',
+	'dashboard.items.status.error.not_found': 'Diese Kampagne existiert nicht mehr.',
+	'dashboard.items.status.error.conflict':
+		'Dieser Wechsel ist vom aktuellen Status aus nicht erlaubt. Der Status wurde zurückgesetzt.',
+	'dashboard.items.status.error.validation': 'Dieser Status ist ungültig.',
+	'dashboard.items.status.error.server':
+		'Bei uns ist etwas schiefgelaufen. Der Status wurde nicht geändert.',
+	'dashboard.items.status.error.unknown': 'Der Status konnte nicht geändert werden.',
+	'dashboard.items.status.error.title': 'Status nicht geändert',
+	'dashboard.items.status.changed': '„{name}“ ist jetzt {status}.',
+	'dashboard.items.status.confirm.title': 'Status auf {status} ändern?',
+	'dashboard.items.status.confirm.body':
+		'„{name}“ kann danach nicht wieder aktiviert werden. Das lässt sich nicht rückgängig machen.',
+	'dashboard.items.status.confirm.action': 'Auf {status} ändern',
+	'common.close': 'Schließen',
+	'common.dismiss': 'Ausblenden',
+	'common.notifications': 'Benachrichtigungen'
 };
