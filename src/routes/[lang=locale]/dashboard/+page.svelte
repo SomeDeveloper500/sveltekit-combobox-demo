@@ -1,7 +1,9 @@
 <script lang="ts">
 	import Seo from '#lib/components/Seo/Seo.svelte';
 	import { getI18n } from '#lib/i18n/context.js';
+	import { localizePath } from '#lib/i18n/locale.js';
 	import Badge from '#lib/ui/Badge/Badge.svelte';
+	import Button from '#lib/ui/Button/Button.svelte';
 	import Container from '#lib/ui/Container/Container.svelte';
 	import Heading from '#lib/ui/Heading/Heading.svelte';
 	import type { PageProps } from './$types';
@@ -21,4 +23,7 @@
 		{i18n.t('dashboard.welcome', { name: user.name })}
 		<Badge tone="info">{i18n.t(`role.${user.role}`)}</Badge>
 	</p>
+	<Button href={localizePath(i18n.lang, '/dashboard/items')}
+		>{i18n.t('dashboard.items.open')}</Button
+	>
 </Container>

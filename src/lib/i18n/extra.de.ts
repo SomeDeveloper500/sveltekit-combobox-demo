@@ -100,5 +100,36 @@ export const extraDe: Record<keyof typeof extraEn, string> = {
 	'error.generic.body':
 		'Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es gleich noch einmal.',
 	'error.reference': 'Referenz: {id}',
-	'error.backHome': 'Zurück zur Startseite'
+	'error.backHome': 'Zurück zur Startseite',
+	'dashboard.items.meta.description': 'Kampagnen durchsuchen, filtern und sortieren.',
+	'dashboard.items.open': 'Kampagnen öffnen',
+	'dashboard.items.filters': 'Kampagnen filtern',
+	'dashboard.items.field.q': 'Kampagnenname',
+	'dashboard.items.field.status': 'Status',
+	'dashboard.items.field.channel': 'Kanal',
+	'dashboard.items.field.owner': 'Verantwortlich',
+	'dashboard.items.any.status': 'Alle Status',
+	'dashboard.items.any.channel': 'Alle Kanäle',
+	'dashboard.items.any.owner': 'Alle Verantwortlichen',
+	'dashboard.items.submit': 'Filter anwenden',
+	'dashboard.items.reset': 'Filter zurücksetzen',
+	'dashboard.items.summary': '{count} Kampagnen',
+	'dashboard.items.noMatch': 'Keine Kampagne passt zu diesen Filtern.',
+	'dashboard.items.sortBy': 'Sortieren nach {column}',
+	'item.status.draft': 'Entwurf',
+	'item.status.scheduled': 'Geplant',
+	'item.status.active': 'Aktiv',
+	'item.status.paused': 'Pausiert',
+	'item.status.completed': 'Abgeschlossen',
+	'item.status.archived': 'Archiviert',
+	'item.channel.email': 'E-Mail',
+	'item.channel.sms': 'SMS',
+	'item.channel.web': 'Web',
+	'item.channel.social': 'Social Media',
+	'item.channel.push': 'Push',
+	'dashboard.items.error.title': 'Die Kampagnen konnten nicht geladen werden',
+	'dashboard.items.error.body':
+		'Die Filter funktionieren weiterhin. Versuchen Sie es gleich noch einmal.',
+	'dashboard.items.owners.failed':
+		'Die Verantwortlichen konnten nicht geladen werden. Die anderen Filter funktionieren weiterhin.'
 };

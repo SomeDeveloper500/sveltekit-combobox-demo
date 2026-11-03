@@ -57,6 +57,10 @@ describe('the dictionaries', () => {
 			'home.proof.1.role',
 			'home.proof.2.author',
 			'home.proof.2.role',
+			'dashboard.items.field.status',
+			'item.channel.sms',
+			'item.channel.web',
+			'item.channel.push',
 			'lang.en',
 			'lang.de'
 		]);
